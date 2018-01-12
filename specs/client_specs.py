@@ -2,7 +2,10 @@
 from __future__ import (absolute_import)
 import vcr
 
-from cnmc import client
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+from cnmc import Client
 
 fixtures_path = 'specs/fixtures/cnmc/'
 
@@ -11,10 +14,17 @@ spec_VCR = vcr.VCR(
     cassette_library_dir=fixtures_path
 )
 
+config = {
+}
+
+expected = {
+}
+
 with description('A new'):
     with before.each:
         self.config = config
         self.expected = expected
+        self.client = Client(**config)
 
     with context('CNMC client'):
         with context('initialization'):

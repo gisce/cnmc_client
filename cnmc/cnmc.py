@@ -39,10 +39,21 @@ class CNMC_API(object):
         self.url = CNCM_envs[self.environment]
 
         self.session = OAuth1Session(self.key, self.secret, signature_method="HMAC-SHA1", signature_type="HEADER")
+        self.NIF = self.get_NIF()
 
-    @property
-    def NIF(self):
-        return "XXXXX"
+
+    def get_NIF(self):
+        """
+        Get NIF from test API method
+
+        It also support us to identify if session is established properly //as done by the oficial CNMC web client
+        """
+        response = self.get(resource="/test/v1/nif")
+        assert response['code'] == 200, "Connection is not established properly '{}'. Review oauth configuraion".format(str(response))
+        
+        assert 'result' in response and  'empresa' in response['result'] and response['result']['empresa'][0]
+        return response['result']['empresa'][0]
+
 
     def set_request_token (self):
         """

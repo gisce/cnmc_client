@@ -38,7 +38,7 @@ class Client(object):
         """
         params = {
             "idProcedimiento": "2",
-            "nifEmpresa": "XXXXXXX",
+            "nifEmpresa": self.API.NIF,
             "estado": status,
         }
 

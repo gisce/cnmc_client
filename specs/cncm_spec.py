@@ -33,5 +33,5 @@ with description('A new'):
         with context('initialization'):
             with it('must be performed as expected'):
                 with spec_VCR.use_cassette('init.yaml'):
-                    result = self.client.test("ROLF")
+                    result = self.client.test(message="ROLF")
                     print (result)

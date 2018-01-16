@@ -8,15 +8,26 @@ Simply configure the KEY and the SECRET as exported environment vars, or attach 
 
 ### ENV vars
 
+Just define the needed ENV vars:
 ```
 $ export CNMC_CONSUMER_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxxx
 $ export CNMC_CONSUMER_SECRET=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxx
 
 ```
 
-### Passed config
+, and instantiate the Client without any parameter:
 
 ```
+from cnmc import Client
+client = Client()
+``` 
+
+### Passed config
+
+Instantiate the Client passing the key and secret oauth tokens:
+```
+from cnmc import Client
+
 oauth_config = {
     'key': "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxxx",
     'secret': "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxxx",

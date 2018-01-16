@@ -10,7 +10,7 @@ from cnmc import Client
 fixtures_path = 'specs/fixtures/cnmc/'
 
 spec_VCR = vcr.VCR(
-    record_mode='all',
+    record_mode='new',
     cassette_library_dir=fixtures_path
 )
 
@@ -33,8 +33,15 @@ with description('A new'):
         with context('initialization'):
             with it('must be performed as expected'):
                 with spec_VCR.use_cassette('init.yaml'):
-                    response = self.client.list()
-                    print (response)
+                    assert self.client
 
-                    for element in response['result']:
-                        print (element.keys())
+        with context('list of pending files'):
+            with it('must be performed as expected'):
+                with spec_VCR.use_cassette('list.yaml'):
+                    response = self.client.list()
+                    
+                    assert response
+
+                    print (response)
+                    for element in response.result:
+                        print (element.nombre, element.estado, element.tipoFichero, element.uriDescargas)

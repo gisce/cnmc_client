@@ -48,4 +48,9 @@ class Client(object):
         if date_end:
             params['fechaHasta'] = date_start
 
-        return self.API.post(resource="/consultar", params=params)
+        response = self.API.post(resource="/consultar", params=params)
+
+        schema = ListSchema()
+        result = schema.load(response)
+        return result.data
+    

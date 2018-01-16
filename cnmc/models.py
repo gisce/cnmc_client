@@ -29,6 +29,9 @@ class ListEntrySchema(Schema):
     nombre = fields.Str()
     hash = fields.Str()
     fechaDisponibilidad = fields.Str()
+    fechaCaducidad = fields.Str()
+    uriDescargas = fields.Str()
+    descripción = fields.Str()
 
     @post_load
     def create_model(self, data):

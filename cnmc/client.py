@@ -1,64 +1,50 @@
 # -*- coding: utf-8 -*-
 
-from authlib.client import OAuth1Session
+from .cnmc import CNMC_API
 import os
-import logging
-            
-
-CNCM_envs = {
-    'prod': '',
-    'staging': '',
-}
 
 class Client(object):
+    def __init__(self, key=None, secret=None, environment=None):
 
-    def __init__(self, **kwargs):
-        logging.info("Initializing CNCM Client")
-
-        # Handle the key and the secret
-        self.key = None
-        if 'key' in kwargs:
-            assert type(kwargs['key']) == str, "The key must be an string. Current type '{}'".format(type(kwargs['key']))
-            self.key = kwargs['key']
-        else:
+        # Handle the key
+        self.key = key
+        if not key:
             self.key = os.getenv('CNMC_CONSUMER_KEY')
         assert self.key, "The key is needed to initialize the CNCM connection"
 
-
-        # Handle the key and the secret
-        self.secret = None
-        if 'secret' in kwargs:
-            assert type(kwargs['secret']) == str, "The secret must be an string. Current type '{}'".format(type(kwargs['secret']))
-            self.key = kwargs['secret']
-        else:
+        # Handle the secret
+        self.secret = secret
+        if not secret:
             self.secret = os.getenv('CNMC_CONSUMER_SECRET')
         assert self.secret, "The secret is needed to initialize the CNCM connection"
 
-
-        # Handle environment, df "prod"
+        # Handle the env, by default prod
         self.environment = "prod"
-        if 'environment' in kwargs:
-            assert type(kwargs['environment']) == str, "environment argument must be an string"
-            assert kwargs['environment'] in CNCM_envs.keys(), "Provided environment '{}' not recognized in defined CNMC_envs {}".format(kwargs['environment'], str(FACE_ENVS.keys()))
-            self.environment = kwargs['environment']
+        if environment:
+            self.environment = environment
 
-        self.session = OAuth1Session(self.key, self.secret)
+        self.API = CNMC_API(key=self.key, secret=self.secret, environment=self.environment)
 
 
-    def method(self, method, resource, **kwargs):
+    def list(self, status="DISPONIBLE", date_start=None, date_end=None):
         """
-        Main method handler
+        List downloaded files or files able to be downloaded, with the capacity of filter it by:
+        - >= start_date
+        - <= end_date
+        - status in ["DISPONIBLE", "DESCARGADO"]
 
-        So far, ask the API and return a JSON representation of the response
+        See https://documentacion.cnmc.es/doc/display/APIPUB/consultar
         """
-        response, content = self.client.request(resource, method, **kwargs)
-        print (response)
-        return response
-        return result.json()
+        params = {
+            "idProcedimiento": "2",
+            "nifEmpresa": "XXXXXXX",
+            "estado": status,
+        }
 
+        if date_start:
+            params['fechaDesde'] = date_start
 
-    def get(self, resource, **kwargs):
-        """
-        GET method, it trigger an API.get method consuming the desired resource
-        """
-        return self.method(method="get", resource=resource, **kwargs)
+        if date_end:
+            params['fechaHasta'] = date_start
+
+        return self.API.post(resource="/consultar", params=params)

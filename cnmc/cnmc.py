@@ -5,8 +5,8 @@ import logging
 from authlib.common.urls import add_params_to_uri       
 
 CNCM_envs = {
-    'prod': 'https://api.cnmc.gob.es/ficheros/v1',
-    'staging': '',
+    'prod': 'https://api.cnmc.gob.es',
+    'staging': 'https://apipre.cnmc.gob.es',
 }
 
 class CNMC_API(object):

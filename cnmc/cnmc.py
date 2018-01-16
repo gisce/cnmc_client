@@ -60,16 +60,18 @@ class CNMC_API(object):
         url = self.url + resource
         response = self.session.request(method=method, url=url, **kwargs)
 
-        if response.status_code not in [404, 500, 403]:
+        # Handle errors        
+        if response.status_code >= 400:
             return {
                 'code': response.status_code,
-                'result': response.json(),
-                'error': False,
+                'error': True,
+                'message': str(response),
             }
         else:
             return {
                 'code': response.status_code,
-                'error': True,
+                'result': response.json(),
+                'error': False,
             }
 
 

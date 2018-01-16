@@ -6,3 +6,4 @@ __author__ = 'XaviTorello'
 __version__ = '0.1.0'
 
 from .client import Client
+from .cnmc import CNMC_API

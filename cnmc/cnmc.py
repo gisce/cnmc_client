@@ -39,8 +39,10 @@ class CNMC_API(object):
         self.url = CNCM_envs[self.environment]
 
         self.session = OAuth1Session(self.key, self.secret, signature_method="HMAC-SHA1", signature_type="HEADER")
-        print (self.session)
 
+    @property
+    def NIF(self):
+        return "XXXXX"
 
     def set_request_token (self):
         """

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .cnmc import CNMC_API
+from .models import ListSchema
 import os
 
 class Client(object):

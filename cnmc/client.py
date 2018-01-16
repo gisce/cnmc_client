@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .cnmc import CNMC_API
-from .models import ListSchema
+from .models import ListSchema, TestSchema
 import os
 
 AVAILABLE_FILE_STATES = ["DISPONIBLE", "DESCARGADO"]
@@ -27,6 +27,26 @@ class Client(object):
             self.environment = environment
 
         self.API = CNMC_API(key=self.key, secret=self.secret, environment=self.environment)
+
+
+    def test(self, message):
+        """
+        Test do not follow the default method
+        """
+        params = {
+            "m": message,
+        }
+        response = self.API.get(resource="/test/v1/echoseguro", params=params)
+
+        # Validate and deserialize the response 
+        schema = TestSchema()
+        result = schema.load(response)
+
+        if not result.errors:
+            return result.data
+        else:
+            raise ValueError('Result deserialization is not performed properly for "{}"'.format(repr(result)))
+
 
 
     def list(self, status=None, date_start=None, date_end=None):

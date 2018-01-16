@@ -1,6 +1,9 @@
 from marshmallow import Schema, fields, post_load
 from munch import Munch
 
+
+## Base response Models and Schemas
+
 class CNMC_Response(Munch):
     pass
 
@@ -14,6 +17,34 @@ class ResponseSchema(Schema):
         return CNMC_Response(**data)
 
 
+
+## CNMC Test resource Models and Schemas
+
+class CNMC_TestEntry(Munch):
+    pass
+
+class TestEntrySchema(Schema):
+    mensaje = fields.Str()
+    
+    @post_load
+    def create_model(self, data):
+        return CNMC_TestEntry(**data)
+
+
+class CNMC_Test(Munch):
+    pass
+
+class TestSchema(Schema):
+    result = fields.Nested(TestEntrySchema, many=False)
+
+    @post_load
+    def create_model(self, data):
+        return CNMC_Test(**data)
+
+
+
+
+## CNMC List resource Models and Schemas
 
 class CNMC_ListEntry(Munch):
     pass

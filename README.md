@@ -43,9 +43,18 @@ self.client.test(message="This is a test message!")
 
 ### List method
 
-```
-```
+List downloaded files or files able to be downloaded, with the capacity of filter it by:
+- >= start_date
+- <= end_date
+- status in ["DISPONIBLE", "DESCARGADO"]
 
+```
+STATUS = "DISPONIBLE"
+date_start = 
+date_end = 
+
+self.client.list(status=STATUS, date_start=date_start, date_end=date_end)
+```
 
 ### Fetch method
 

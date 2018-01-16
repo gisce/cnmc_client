@@ -38,6 +38,18 @@ with description('A new'):
                 with spec_VCR.use_cassette('init.yaml'):
                     assert self.client
 
+
+        with context('test method'):
+            with it('must work as expected'):
+                with spec_VCR.use_cassette('test.yaml'):
+                    message="this is just a test!"
+                    response = self.client.test(message=message)
+                    
+                    assert response and 'result' in response
+                    assert 'mensaje' in response.result
+                    assert response.result.mensaje == message
+
+
         with context('list of pending files'):
             with it('must be performed as expected'):
                 with spec_VCR.use_cassette('list.yaml'):

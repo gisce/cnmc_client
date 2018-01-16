@@ -59,7 +59,7 @@ class Client(object):
             params['fechaHasta'] = date_start
 
         # Ask the API 
-        response = self.API.post(resource="/consultar", params=params)
+        response = self.API.post(resource="/ficheros/v1/consultar", params=params)
 
         # Validate and deserialize the response 
         schema = ListSchema()
@@ -69,3 +69,28 @@ class Client(object):
             return result.data
         else:
             raise ValueError('Result deserialization is not performed properly for "{}"'.format(repr(result)))
+
+
+    def fetch(self, cups, file_type):
+        """
+        Fetch partial data for a list of CUPS
+        
+        Available file types:
+        - SIPS2_PS_ELECTRICIDAD
+        - SIPS2_CONSUMOS_ELECTRICIDAD
+        - SIPS2_PS_GAS
+        - SIPS2_CONSUMOS_GAS
+
+        See https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
+        """
+
+        assert type(cups) in [list]
+        assert file_type in ["SIPS2_PS_ELECTRICIDAD", "SIPS2_CONSUMOS_ELECTRICIDAD", "SIPS2_PS_GAS", "SIPS2_CONSUMOS_GAS"]
+
+        params = {
+            "cups": ",".join(cups)
+        }
+
+        # Ask the API 
+        response = self.API.get(resource="/verticales/v1/SIPS/consulta/v1/{}.csv".format(file_type), params=params)
+        return response

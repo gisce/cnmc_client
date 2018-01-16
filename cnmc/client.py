@@ -82,6 +82,8 @@ class Client(object):
         - SIPS2_CONSUMOS_GAS
 
         See https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
+
+        Alternative, disabled right now: https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada 
         """
 
         assert type(cups) in [list]

@@ -47,7 +47,19 @@ client = Client(**oauth_config)
 
 ### Fetch method
 
+Define the list of CUPS to analyze and the desired file type.
+
+List of types:
+- SIPS2_PS_ELECTRICIDAD
+- SIPS2_CONSUMOS_ELECTRICIDAD
+- SIPS2_PS_GAS
+- SIPS2_CONSUMOS_GAS
+
 ```
+the_cups = [ "CUPSA", "CUPSB" ]
+the_type = "SIPS2_PS_ELECTRICIDAD"
+
+self.client.fetch(cups=the_cups, file_type=the_type)
 ```
 
 

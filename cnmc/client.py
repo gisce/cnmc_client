@@ -48,7 +48,6 @@ class Client(object):
             raise ValueError('Result deserialization is not performed properly for "{}"'.format(repr(result)))
 
 
-
     def list(self, status=None, date_start=None, date_end=None):
         """
         List downloaded files or files able to be downloaded, with the capacity of filter it by:
@@ -116,3 +115,19 @@ class Client(object):
         # Ask the API 
         response = self.API.get(resource="/verticales/v1/SIPS/consulta/v1/{}.csv".format(file_type), params=params)
         return response
+
+
+    def download(self, filename):
+        """
+        Download 
+
+        See https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
+
+        Alternative, disabled right now: https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada 
+        """
+
+        assert type(filename) == str
+
+        # Ask the API 
+        response = self.API.get(resource="/ficheros/v1/descarga/{}".format(filename))
+        return response    

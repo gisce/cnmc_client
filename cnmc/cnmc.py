@@ -87,13 +87,3 @@ class CNMC_API(object):
         POST method, it dispatch a session.get method consuming the desired resource
         """
         return self.method(method="POST", resource=resource, **kwargs)
-
-
-    def test(self, message):
-        """
-        Test do not follow the default method
-        """
-        params = {
-            "m": message,
-        }
-        return self.session.request(method="GET", url="https://api.cnmc.gob.es/test/v1/echoseguro", params=params)

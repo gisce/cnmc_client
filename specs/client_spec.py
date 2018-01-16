@@ -72,10 +72,24 @@ with description('A new'):
                     response = self.client.fetch(cups=the_cups, file_type=the_type)
                     
                     assert response
-                    print (response)
                     
                     """
                     print (response)
                     for element in response.result:
                         print (element.nombre, element.estado, element.tipoFichero, element.uriDescargas)
                     """
+
+
+        with context('download of a file'):
+            with it('must be performed as expected'):
+                with spec_VCR.use_cassette('download.yaml'):
+                    response = self.client.list()
+                    assert response
+
+                    # Extract the filename from the URL
+                    filename = str(response['result'][0].uriDescargas).split("/")[-1]
+
+                    # Ask the API to download it
+                    response = self.client.download(filename=filename)
+                    print (response)
+                    assert response

@@ -10,11 +10,13 @@ from cnmc import Client
 fixtures_path = 'specs/fixtures/cnmc/'
 
 spec_VCR = vcr.VCR(
-    record_mode='new_episodes',
+    record_mode='all',
     cassette_library_dir=fixtures_path
 )
 
 config = {
+#    'key': 'the_key',
+#    'secret': 'the_secret',
 }
 
 expected = {
@@ -22,13 +24,17 @@ expected = {
 
 with description('A new'):
     with before.each:
-        self.config = config
-        self.expected = expected
-        self.client = Client(**config)
+        with spec_VCR.use_cassette('init.yaml'):
+            self.config = config
+            self.expected = expected
+            self.client = Client(**config)
 
     with context('CNMC client'):
         with context('initialization'):
             with it('must be performed as expected'):
                 with spec_VCR.use_cassette('init.yaml'):
-                    pass
+                    response = self.client.list()
+                    print (response)
 
+                    for element in response['result']:
+                        print (element.keys())

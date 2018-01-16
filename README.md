@@ -32,10 +32,12 @@ client = Client(**oauth_config)
 - [Fetch](#fetch-method)
 - [Download](#download-method)
 
+
 ### Test method
+Method desired to test the connection with the API using the `echoseguro` resource.
 
 ```
-
+self.client.test(message="This is a test message!")
 ```
 
 

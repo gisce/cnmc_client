@@ -38,6 +38,7 @@ with description('A new'):
                 with spec_VCR.use_cassette('init.yaml'):
                     assert self.client
 
+        """
 
         with context('test method'):
             with it('must work as expected'):
@@ -57,21 +58,19 @@ with description('A new'):
                     
                     assert response
                     
-                    """
                     print (response)
                     for element in response.result:
                         print (element.nombre, element.estado, element.tipoFichero, element.uriDescargas)
-                    """
+        """
 
         with context('reach files for some CUPS'):
             with it('must be performed as expected'):
                 with spec_VCR.use_cassette('fetch.yaml'):
                     the_cups = [ LIST_OF_CUPS[0] ]
-                    the_type = LIST_OF_FILE_TYPES[1]
+                    the_type = LIST_OF_FILE_TYPES[0]
                     
                     response = self.client.fetch(cups=the_cups, file_type=the_type)
-                    
-                    assert response
+                    assert type(response['result']) == bytes
                     
                     """
                     print (response)
@@ -79,7 +78,7 @@ with description('A new'):
                         print (element.nombre, element.estado, element.tipoFichero, element.uriDescargas)
                     """
 
-
+        """
         with context('download of a file'):
             with it('must be performed as expected'):
                 with spec_VCR.use_cassette('download.yaml'):
@@ -93,3 +92,5 @@ with description('A new'):
                     response = self.client.download(filename=filename)
                     print (response)
                     assert response
+        """
+                    

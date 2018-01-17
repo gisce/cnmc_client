@@ -3,6 +3,8 @@
 from .cnmc import CNMC_API
 from .models import ListSchema, TestSchema
 import os
+import io   
+import csv     
 
 AVAILABLE_FILE_STATES = ["DISPONIBLE", "DESCARGADO"]
 
@@ -90,7 +92,7 @@ class Client(object):
             raise ValueError('Result deserialization is not performed properly for "{}"'.format(repr(result)))
 
 
-    def fetch(self, cups, file_type):
+    def fetch(self, cups, file_type, as_csv=False):
         """
         Fetch partial data for a list of CUPS
         
@@ -113,7 +115,14 @@ class Client(object):
         }
 
         # Ask the API 
-        response = self.API.get(resource="/verticales/v1/SIPS/consulta/v1/{}.csv".format(file_type), params=params)
+        response = self.API.download(resource="/verticales/v1/SIPS/consulta/v1/{}.csv".format(file_type), params=params)
+
+        # Return a csv reader if needed
+        if as_csv:
+            # Parse the downlaoded binary file as a csv
+            with io.TextIOWrapper(response['result']) as csv_data:
+                response['result'] = csv.reader(csv_data, delimiter=",", quotechar='"')
+
         return response
 
 

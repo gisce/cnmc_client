@@ -8,4 +8,6 @@
     - OAuth1 session establishment
     - GET and POST HTTP actions
   - Basic Mamba specs for all functionalities
-  
+  - New requirements
+    - Marshmallow
+    - Munch

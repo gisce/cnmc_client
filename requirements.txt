@@ -1,1 +1,3 @@
-python-oauth2
+Authlib
+Marshmallow
+Munch

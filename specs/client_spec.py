@@ -40,8 +40,6 @@ with description('A new'):
                 with spec_VCR.use_cassette('init.yaml'):
                     assert self.client
 
-        """
-
         with context('test method'):
             with it('must work as expected'):
                 with spec_VCR.use_cassette('test.yaml'):
@@ -52,18 +50,17 @@ with description('A new'):
                     assert 'mensaje' in response.result
                     assert response.result.mensaje == message
 
-
         with context('list of pending files'):
             with it('must be performed as expected'):
                 with spec_VCR.use_cassette('list.yaml'):
                     response = self.client.list()
-
-                    assert response
-
+                    assert response and not response.error
+                    
+                    """
                     print (response)
                     for element in response.result:
                         print (element.nombre, element.estado, element.tipoFichero, element.uriDescargas)
-        """
+                    """
 
         with context('reach files for some CUPS'):
             with it('must be performed as expected'):
@@ -86,18 +83,19 @@ with description('A new'):
                         print (element.nombre, element.estado, element.tipoFichero, element.uriDescargas)
                     """
 
-        """
+
         with context('download of a file'):
             with it('must be performed as expected'):
                 with spec_VCR.use_cassette('download.yaml'):
                     response = self.client.list()
-                    assert response
+                    assert response and not response.error
 
                     # Extract the filename from the URL
                     filename = str(response['result'][0].uriDescargas).split("/")[-1]
-
+                    """
+                    # Huge FILE, disabled spec by default
                     # Ask the API to download it
                     response = self.client.download(filename=filename)
                     print (response)
                     assert response
-        """
+                    """

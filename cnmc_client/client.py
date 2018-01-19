@@ -120,8 +120,8 @@ class Client(object):
         # Return a csv reader if needed
         if as_csv:
             # Parse the downlaoded binary file as a csv
-            with io.TextIOWrapper(response['result']) as csv_data:
-                response['result'] = csv.reader(csv_data, delimiter=",", quotechar='"')
+            csv_data = io.TextIOWrapper(response['result'])
+            response['result'] = csv.reader(csv_data, delimiter=",", quotechar='"')
 
         # Validate and deserialize the response
         schema = FilesSchema()

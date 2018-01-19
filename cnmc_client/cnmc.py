@@ -75,7 +75,7 @@ class CNMC_API(object):
             return {
                 'code': response.status_code,
                 'result': BytesIO(response.content),
-                'error': False,
+                'error': True if response.status_code >= 400 else False,
             }
 
         # Handle errors

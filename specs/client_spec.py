@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import)
 import vcr
-
+import io
+import csv
+import collections
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from cnmc import Client
+from cnmc_client import Client
 
-fixtures_path = 'specs/fixtures/cnmc/'
+fixtures_path = 'specs/fixtures/client/'
 
 spec_VCR = vcr.VCR(
     record_mode='new',
@@ -38,24 +40,21 @@ with description('A new'):
                 with spec_VCR.use_cassette('init.yaml'):
                     assert self.client
 
-
         with context('test method'):
             with it('must work as expected'):
                 with spec_VCR.use_cassette('test.yaml'):
                     message="this is just a test!"
                     response = self.client.test(message=message)
-                    
+
                     assert response and 'result' in response
                     assert 'mensaje' in response.result
                     assert response.result.mensaje == message
-
 
         with context('list of pending files'):
             with it('must be performed as expected'):
                 with spec_VCR.use_cassette('list.yaml'):
                     response = self.client.list()
-                    
-                    assert response
+                    assert response and not response.error
                     
                     """
                     print (response)
@@ -67,12 +66,17 @@ with description('A new'):
             with it('must be performed as expected'):
                 with spec_VCR.use_cassette('fetch.yaml'):
                     the_cups = [ LIST_OF_CUPS[0] ]
-                    the_type = LIST_OF_FILE_TYPES[1]
-                    
+                    the_type = LIST_OF_FILE_TYPES[0]
+
+                    # Fetching the file as bytes
                     response = self.client.fetch(cups=the_cups, file_type=the_type)
-                    
-                    assert response
-                    
+                    assert isinstance(response['result'], io.BytesIO), "Fetch a file must return a BytesIO instance"
+
+                    # Fetching the file as a CSV must be a DictReader and iterable!
+                    response = self.client.fetch(cups=the_cups, file_type=the_type, as_csv=True)
+                    assert isinstance(response['result'], csv.DictReader), "Fetch a file must return a DictReader instance"
+                    assert isinstance(response['result'], collections.Iterator), "Fetch a file as_csv must return an interator instance"
+
                     """
                     print (response)
                     for element in response.result:
@@ -84,12 +88,14 @@ with description('A new'):
             with it('must be performed as expected'):
                 with spec_VCR.use_cassette('download.yaml'):
                     response = self.client.list()
-                    assert response
+                    assert response and not response.error
 
                     # Extract the filename from the URL
                     filename = str(response['result'][0].uriDescargas).split("/")[-1]
-
+                    """
+                    # Huge FILE, disabled spec by default
                     # Ask the API to download it
                     response = self.client.download(filename=filename)
                     print (response)
                     assert response
+                    """

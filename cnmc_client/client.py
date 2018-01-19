@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from .cnmc import CNMC_API
-from .models import ListSchema, TestSchema
+from .models import ListSchema, TestSchema, FilesSchema
 import os
+import io
+import csv
 
 AVAILABLE_FILE_STATES = ["DISPONIBLE", "DESCARGADO"]
 
@@ -38,7 +40,7 @@ class Client(object):
         }
         response = self.API.get(resource="/test/v1/echoseguro", params=params)
 
-        # Validate and deserialize the response 
+        # Validate and deserialize the response
         schema = TestSchema()
         result = schema.load(response)
 
@@ -77,10 +79,10 @@ class Client(object):
         if date_end:
             params['fechaHasta'] = date_start
 
-        # Ask the API 
+        # Ask the API
         response = self.API.post(resource="/ficheros/v1/consultar", params=params)
 
-        # Validate and deserialize the response 
+        # Validate and deserialize the response
         schema = ListSchema()
         result = schema.load(response)
 
@@ -90,10 +92,10 @@ class Client(object):
             raise ValueError('Result deserialization is not performed properly for "{}"'.format(repr(result)))
 
 
-    def fetch(self, cups, file_type):
+    def fetch(self, cups, file_type, as_csv=False):
         """
         Fetch partial data for a list of CUPS
-        
+
         Available file types:
         - SIPS2_PS_ELECTRICIDAD
         - SIPS2_CONSUMOS_ELECTRICIDAD
@@ -102,7 +104,7 @@ class Client(object):
 
         See https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
 
-        Alternative, disabled right now: https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada 
+        Alternative, disabled right now: https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
         """
 
         assert type(cups) in [list]
@@ -112,22 +114,39 @@ class Client(object):
             "cups": ",".join(cups)
         }
 
-        # Ask the API 
-        response = self.API.get(resource="/verticales/v1/SIPS/consulta/v1/{}.csv".format(file_type), params=params)
+        # Ask the API
+        response = self.API.download(resource="/verticales/v1/SIPS/consulta/v1/{}.csv".format(file_type), params=params)
+
+        # Return a csv reader if needed
+        if as_csv:
+            # Parse the downlaoded binary file as a csv
+            csv_data = io.TextIOWrapper(response['result'])
+            response['result'] = csv.DictReader(csv_data, delimiter=",", quotechar='"')
+
+        # Validate and deserialize the response
+        schema = FilesSchema()
+        result = schema.load(response)
+
+        if not result.errors:
+            return result.data
+        else:
+            raise ValueError('Fetch result deserialization is not performed properly for "{}"'.format(repr(result)))
+
+
         return response
 
 
     def download(self, filename):
         """
-        Download 
+        Download
 
         See https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
 
-        Alternative, disabled right now: https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada 
+        Alternative, disabled right now: https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
         """
 
         assert type(filename) == str
 
-        # Ask the API 
+        # Ask the API
         response = self.API.get(resource="/ficheros/v1/descarga/{}".format(filename))
-        return response    
+        return response

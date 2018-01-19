@@ -1,4 +1,5 @@
 # 0.2.0
+- Package now is called "cnmc_client" instead of "cnmc"
 - Client.fetch now accepts 'as_csv' flag
   - To return a csv.DictReader ready to be iterated instead of the response result
 - API.method() now accept 'download' flag

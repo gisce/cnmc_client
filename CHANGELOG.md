@@ -8,6 +8,7 @@
   - Call API.method() as a GET request with download=True activated
 - Created `utils/file_fetcher.py` script
   - Desired to show how to fetch SIPS files as bytes and iterable dicts
+- Package cnmc_client is installable through setup.py file
 
 # 0.1.0
 - Initial CNMC client

@@ -4,7 +4,10 @@ from __future__ import (absolute_import)
 from cnmc_client import Client
 
 config = {
-    'environment': 'prod'
+    'environment': 'prod',
+    # if not provided, it tries to fetch from ENV vars
+    #    'key': 'the_key',
+    #    'secret': 'the_secret',
 }
 
 LIST_OF_CUPS = ["ES0021000000228141PR", "ES0021000002097098PR", "ES0021000003589973DS"]

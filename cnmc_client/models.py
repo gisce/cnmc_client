@@ -25,7 +25,7 @@ class CNMC_TestEntry(Munch):
 
 class TestEntrySchema(Schema):
     mensaje = fields.Str()
-    
+
     @post_load
     def create_model(self, data):
         return CNMC_TestEntry(**data)
@@ -79,3 +79,23 @@ class ListSchema(ResponseSchema):
     @post_load
     def create_model(self, data):
         return CNMC_List(**data)
+
+
+
+
+
+class BytesIO_field(fields.Field):
+    def _serialize(self, value, attr, obj):
+        if value is None:
+            return ''
+        return value
+
+class CNMC_File(Munch):
+    pass
+
+class FilesSchema(ResponseSchema):
+    result = BytesIO_field()
+
+    @post_load
+    def create_model(self, data):
+        return CNMC_File(**data)

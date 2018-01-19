@@ -73,12 +73,11 @@ with description('A new'):
 
                     # Fetching the file as bytes
                     response = self.client.fetch(cups=the_cups, file_type=the_type)
-                    print (type(response['result']))
                     assert isinstance(response['result'], io.BytesIO), "Fetch a file must return a BytesIO instance"
 
-                    # Fetching the file as a CSV
+                    # Fetching the file as a CSV must be a DictReader and iterable!
                     response = self.client.fetch(cups=the_cups, file_type=the_type, as_csv=True)
-                    assert str(type(response['result'])) == "<class '_csv.reader'>", "Fetch a file as_csv must return a csv reader"
+                    assert isinstance(response['result'], csv.DictReader), "Fetch a file must return a DictReader instance"
                     assert isinstance(response['result'], collections.Iterator), "Fetch a file as_csv must return an interator instance"
 
                     """

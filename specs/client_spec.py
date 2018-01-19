@@ -3,6 +3,7 @@ from __future__ import (absolute_import)
 import vcr
 import io
 import csv
+import collections
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -74,6 +75,11 @@ with description('A new'):
                     response = self.client.fetch(cups=the_cups, file_type=the_type)
                     print (type(response['result']))
                     assert isinstance(response['result'], io.BytesIO), "Fetch a file must return a BytesIO instance"
+
+                    # Fetching the file as a CSV
+                    response = self.client.fetch(cups=the_cups, file_type=the_type, as_csv=True)
+                    assert str(type(response['result'])) == "<class '_csv.reader'>", "Fetch a file as_csv must return a csv reader"
+                    assert isinstance(response['result'], collections.Iterator), "Fetch a file as_csv must return an interator instance"
 
                     """
                     print (response)

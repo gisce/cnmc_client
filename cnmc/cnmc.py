@@ -2,7 +2,6 @@
 
 from authlib.client import OAuth1Session
 import logging
-from authlib.common.urls import add_params_to_uri       
 from io import BytesIO
 
 CNCM_envs = {
@@ -51,7 +50,7 @@ class CNMC_API(object):
         """
         response = self.get(resource="/test/v1/nif")
         assert response['code'] == 200, "Connection is not established properly '{}'. Review oauth configuraion".format(str(response))
-        
+
         assert 'result' in response and  'empresa' in response['result'] and response['result']['empresa'][0]
         return response['result']['empresa'][0]
 
@@ -72,17 +71,14 @@ class CNMC_API(object):
         url = self.url + resource
         response = self.session.request(method=method, url=url, **kwargs)
 
-        print (type(response.content))
-
         if download:
-            print ("Download")
             return {
                 'code': response.status_code,
                 'result': BytesIO(response.content),
                 'error': False,
             }
 
-        # Handle errors        
+        # Handle errors
         if response.status_code >= 400:
             return {
                 'code': response.status_code,
@@ -104,17 +100,15 @@ class CNMC_API(object):
         return self.method(method="GET", resource=resource, **kwargs)
 
 
+    def post(self, resource, **kwargs):
+        """
+        POST method, it dispatch a session.get method consuming the desired resource
+        """
+        return self.method(method="POST", resource=resource, **kwargs)
+
 
     def download(self, resource, **kwargs):
         """
         GET method, it dispatch a session.get method consuming the desired resource
         """
         return self.method(method="GET", resource=resource, download=True, **kwargs)
-
-
-
-    def post(self, resource, **kwargs):
-        """
-        POST method, it dispatch a session.get method consuming the desired resource
-        """
-        return self.method(method="POST", resource=resource, **kwargs)

@@ -6,6 +6,8 @@
   - Useful to in-memory files representation
 - API.download() new wrapper method
   - Call API.method() as a GET request with download=True activated
+- Created `utils/file_fetcher.py` script
+  - Desired to show how to fetch SIPS files as bytes and iterable dicts
 
 # 0.1.0
 - Initial CNMC client

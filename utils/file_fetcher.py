@@ -21,10 +21,11 @@ def list_available_files():
     return client.list()
 
 # Get SIPS file as bytes
-SIPS_bytes = fetch_SIPS(cups=[LIST_OF_CUPS[0]])
+SIPS_bytes = fetch_SIPS(cups=LIST_OF_CUPS)
 
 # Get SIPS file as CSV reader
-SIPS_csv = fetch_SIPS(cups=[LIST_OF_CUPS[0]], as_csv=True)
+SIPS_csv = fetch_SIPS(cups=LIST_OF_CUPS, as_csv=True)
 
+# Print each resultant Dict
 for line in SIPS_csv:
-    print (', '.join(line))
+    print (line)

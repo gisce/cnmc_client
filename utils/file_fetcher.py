@@ -14,8 +14,8 @@ client = Client(**config)
 
 def fetch_SIPS(cups, file_type=LIST_OF_FILE_TYPES[0], as_csv=False):
     response = client.fetch(cups=cups, file_type=file_type, as_csv=as_csv)
-    if not response.error:
-        return response.result
+    assert not response.error
+    return response.result
 
 def list_available_files():
     return client.list()
@@ -26,6 +26,6 @@ SIPS_bytes = fetch_SIPS(cups=LIST_OF_CUPS)
 # Get SIPS file as CSV reader
 SIPS_csv = fetch_SIPS(cups=LIST_OF_CUPS, as_csv=True)
 
-# Print each resultant Dict
+# Print each resultant element
 for line in SIPS_csv:
     print (line)

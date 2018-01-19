@@ -7,7 +7,7 @@ import collections
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from cnmc import Client
+from cnmc_client import Client
 
 fixtures_path = 'specs/fixtures/client/'
 

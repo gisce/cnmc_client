@@ -6,7 +6,7 @@ import io
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from cnmc import CNMC_API
+from cnmc_client import CNMC_API
 
 fixtures_path = 'specs/fixtures/cnmc/'
 

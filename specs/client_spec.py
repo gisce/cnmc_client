@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import)
 import vcr
-
+import io
+import csv
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
 from cnmc import Client
 
-fixtures_path = 'specs/fixtures/cnmc/'
+fixtures_path = 'specs/fixtures/client/'
 
 spec_VCR = vcr.VCR(
     record_mode='new',
@@ -45,7 +46,7 @@ with description('A new'):
                 with spec_VCR.use_cassette('test.yaml'):
                     message="this is just a test!"
                     response = self.client.test(message=message)
-                    
+
                     assert response and 'result' in response
                     assert 'mensaje' in response.result
                     assert response.result.mensaje == message
@@ -55,9 +56,9 @@ with description('A new'):
             with it('must be performed as expected'):
                 with spec_VCR.use_cassette('list.yaml'):
                     response = self.client.list()
-                    
+
                     assert response
-                    
+
                     print (response)
                     for element in response.result:
                         print (element.nombre, element.estado, element.tipoFichero, element.uriDescargas)
@@ -68,10 +69,12 @@ with description('A new'):
                 with spec_VCR.use_cassette('fetch.yaml'):
                     the_cups = [ LIST_OF_CUPS[0] ]
                     the_type = LIST_OF_FILE_TYPES[0]
-                    
+
+                    # Fetching the file as bytes
                     response = self.client.fetch(cups=the_cups, file_type=the_type)
-                    assert type(response['result']) == bytes
-                    
+                    print (type(response['result']))
+                    assert isinstance(response['result'], io.BytesIO), "Fetch a file must return a BytesIO instance"
+
                     """
                     print (response)
                     for element in response.result:
@@ -93,4 +96,3 @@ with description('A new'):
                     print (response)
                     assert response
         """
-                    

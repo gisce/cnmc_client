@@ -1,6 +1,6 @@
+# -*- coding: utf-8 -*-
 from marshmallow import Schema, fields, post_load
 from munch import Munch
-
 
 ## Base response Models and Schemas
 
@@ -43,7 +43,6 @@ class TestSchema(Schema):
 
 
 
-
 ## CNMC List resource Models and Schemas
 
 class CNMC_ListEntry(Munch):
@@ -79,8 +78,6 @@ class ListSchema(ResponseSchema):
     @post_load
     def create_model(self, data):
         return CNMC_List(**data)
-
-
 
 
 

@@ -61,7 +61,7 @@ class ListEntrySchema(Schema):
     fechaDisponibilidad = fields.Str()
     fechaCaducidad = fields.Str()
     uriDescargas = fields.Str()
-    descripción = fields.Str()
+    descripcion = fields.Str(attribute="descripción")
 
     @post_load
     def create_model(self, data):

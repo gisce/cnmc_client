@@ -68,6 +68,7 @@ class CNMC_Utils(object):
         assert float(division) != 0, "Division must not be 0"
         
         return float(amount) / float(division)
+
         
     def _adapt_type_electricidad(self, line):
 	return {
@@ -110,8 +111,9 @@ class CNMC_Utils(object):
         for line in data:
             print (line)
 
-            if file_type == "SIPS2_PS_ELECTRICIDAD":
-                adaption = self._adapt_type_electricidad(line)
+            adaption = {
+                'SIPS2_PS_ELECTRICIDAD': self._adapt_type_electricidad(line),
+            }[file_type]
 
             print (adaption)
             return adaption 
@@ -139,7 +141,6 @@ def main(zipcode, host, port, user, password, database, file_type, cnmc):
     }
 
     utils = CNMC_Utils(cnmc_config, mongo_config)
-    # Initialize CNMC Client
 
     cups_list = utils.find_CUPS_by_zip(zipcode)
     SIPS_files = utils.fetch_SIPS(cups=cups_list[:3], as_csv=True, file_type=file_type)

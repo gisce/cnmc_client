@@ -105,11 +105,16 @@ def main(zipcode, host, port, user, password, database):
     # Initialize CNMC Client
 
     cups_list = utils.find_CUPS_by_zip(zipcode)
+    SIPS_files = utils.fetch_SIPS(cups=cups_list[:3], as_csv=True)
+    
+    for a_file in SIPS_files:
+        if a_file.error:
+            continue
 
-    SIPS_csv = utils.fetch_SIPS(cups=cups_list, as_csv=True)
+        SIPS_csv = a_file.result
 
-    for line in SIPS_csv:
-        print (line)
+        utils.adapt_data(SIPS_csv)
+
 
 
 if __name__ == '__main__':

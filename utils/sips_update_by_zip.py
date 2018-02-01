@@ -147,6 +147,17 @@ class CNMC_Utils(object):
 	}, { 'name': line['cups'], 'data_inicial': line['fechaInicioMesConsumo'], 'data_final': line['fechaFinMesConsumo'] }
         
         
+    def get_counter(self, file_type):
+        try:
+            return self.collections['counters'].find_one({ "_id": self.destination_collection}, {"counter": 1})['counter']
+        except:
+            return 1
+
+
+    def set_counter(self, file_type, counter):
+        return self.collections['counters'].update_one({ "_id": self.destination_collection}, {"$set": {"counter": counter}}, upsert=True)
+
+
     def adapt_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
         """ 
         Adapt incoming SIPS data based on file type and configured requirements

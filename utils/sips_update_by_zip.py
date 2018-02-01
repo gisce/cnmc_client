@@ -69,41 +69,67 @@ class CNMC_Utils(object):
         
         return float(amount) / float(division)
 
-        
-    def _adapt_type_electricidad(self, line):
-	return {
-	    'der_acces_llano': self._divide(line['valorDerechosAccesoW'], 1000),
-	    'data_ult_lect': line['fechaUltimaLectura'],
-	    'primera_vivienda': line['esViviendaHabitual'], #OJUT
-	    'data_ult_canv': line['fechaUltimoCambioComercializador'],
-	    'cnae': line['CNAE'],
-	    'tipo_pm': line['codigoClasificacionPS'],
-	    'codigoTipoSuministro': '',
-	    'codigoTarifaATREnVigor': '001',
-	    'motivoEstadoNoContratable': line['motivoEstadoNoContratable'],
-	    'codi_postal': line['codigoPostalPS'],
-	    'data_alta': line['fechaAltaSuministro'],
-	    'pot_cont_p1': self._divide(line['potenciasContratadasEnWP1'], 1000),
-	    'pot_cont_p2': self._divide(line['potenciasContratadasEnWP2'], 1000),
-	    'pot_cont_p3': self._divide(line['potenciasContratadasEnWP3'], 1000),
-	    'pot_cont_p4': self._divide(line['potenciasContratadasEnWP4'], 1000),
-	    'pot_cont_p5': self._divide(line['potenciasContratadasEnWP5'], 1000),
-	    'pot_cont_p6': self._divide(line['potenciasContratadasEnWP6'], 1000),
-	    'data_ulti_mov': line['fechaUltimoMovimientoContrato'],
-	    'pot_max_puesta': self._divide(line['potenciaMaximaAPMW'], 1000),
-	    'der_extensio': self._divide(line['valorDerechosExtensionW'], 1000),
-	    'fianza': line['importeDepositoGarantiaEuros'],
-	    'perfil_consum': line['tipoPerfilConsumo'], #OJUT!
-	    'distri': line['nombreEmpresaDistribuidora'],
-	    'pot_max_bie': self._divide(line['potenciaMaximaBIEW'], 1000),
-	    'persona_fj': line['tipoIdTitular'], #OJUT
-	    'ine_provincia': line['codigoProvinciaPS'],
-	    'ine_municipio': line['municipioPS'],
-	    'indicatiu_icp': line['codigoDisponibilidadICP'],
-	    'informacion_impagos': line['informacionImpagos'],
-	    'codigo_ps_contratable': line['codigoPSContratable'],
-	}
 
+    def _adapt_type_electricidad(self, line):
+        return {
+            'der_acces_llano': self._divide(line['valorDerechosAccesoW'], 1000),
+            'data_ult_lect': line['fechaUltimaLectura'],
+            'primera_vivienda': line['esViviendaHabitual'], #OJUT
+            'data_ult_canv': line['fechaUltimoCambioComercializador'],
+            'cnae': line['CNAE'],
+            'tipo_pm': line['codigoClasificacionPS'],
+            'codigoTipoSuministro': '',
+            'codigoTarifaATREnVigor': '001',
+            'motivoEstadoNoContratable': line['motivoEstadoNoContratable'],
+            'codi_postal': line['codigoPostalPS'],
+            'data_alta': line['fechaAltaSuministro'],
+            'pot_cont_p1': self._divide(line['potenciasContratadasEnWP1'], 1000),
+            'pot_cont_p2': self._divide(line['potenciasContratadasEnWP2'], 1000),
+            'pot_cont_p3': self._divide(line['potenciasContratadasEnWP3'], 1000),
+            'pot_cont_p4': self._divide(line['potenciasContratadasEnWP4'], 1000),
+            'pot_cont_p5': self._divide(line['potenciasContratadasEnWP5'], 1000),
+            'pot_cont_p6': self._divide(line['potenciasContratadasEnWP6'], 1000),
+            'data_ulti_mov': line['fechaUltimoMovimientoContrato'],
+            'pot_max_puesta': self._divide(line['potenciaMaximaAPMW'], 1000),
+            'der_extensio': self._divide(line['valorDerechosExtensionW'], 1000),
+            'fianza': line['importeDepositoGarantiaEuros'],
+            'perfil_consum': line['tipoPerfilConsumo'], #OJUT!
+            'distri': line['nombreEmpresaDistribuidora'],
+            'pot_max_bie': self._divide(line['potenciaMaximaBIEW'], 1000),
+            'persona_fj': line['tipoIdTitular'], #OJUT
+            'ine_provincia': line['codigoProvinciaPS'],
+            'ine_municipio': line['municipioPS'],
+            'indicatiu_icp': line['codigoDisponibilidadICP'],
+            'informacion_impagos': line['informacionImpagos'],
+            'codigo_ps_contratable': line['codigoPSContratable'],
+        }
+
+        
+    def _adapt_type_consumos(self, line):
+	return {
+	    'data_inicial': line['fechaInicioMesConsumo'],
+	    'data_final': line['fechaFinMesConsumo'],
+	    'tarifa': line['codigoTarifaATR'],
+	    'activa_1': self._divide(line['consumoEnergiaActivaEnWhP1'], 1000),
+	    'activa_2': self._divide(line['consumoEnergiaActivaEnWhP2'], 1000),
+	    'activa_3': self._divide(line['consumoEnergiaActivaEnWhP3'], 1000),
+	    'activa_4': self._divide(line['consumoEnergiaActivaEnWhP4'], 1000),
+	    'activa_5': self._divide(line['consumoEnergiaActivaEnWhP5'], 1000),
+	    'activa_6': self._divide(line['consumoEnergiaActivaEnWhP6'], 1000),
+	    'reactiva_1': self._divide(line['consumoEnergiaReactivaEnVArhP1'], 1000),
+	    'reactiva_2': self._divide(line['consumoEnergiaReactivaEnVArhP2'], 1000),
+	    'reactiva_3': self._divide(line['consumoEnergiaReactivaEnVArhP3'], 1000),
+	    'reactiva_4': self._divide(line['consumoEnergiaReactivaEnVArhP4'], 1000),
+	    'reactiva_5': self._divide(line['consumoEnergiaReactivaEnVArhP5'], 1000),
+	    'reactiva_6': self._divide(line['consumoEnergiaReactivaEnVArhP6'], 1000),
+	    'potencia_1': self._divide(line['potenciaDemandadaEnWP1'], 1000),
+	    'potencia_2': self._divide(line['potenciaDemandadaEnWP2'], 1000),
+	    'potencia_3': self._divide(line['potenciaDemandadaEnWP3'], 1000),
+	    'potencia_4': self._divide(line['potenciaDemandadaEnWP4'], 1000),
+	    'potencia_5': self._divide(line['potenciaDemandadaEnWP5'], 1000),
+	    'potencia_6': self._divide(line['potenciaDemandadaEnWP6'], 1000),
+	    'tipo_lectura': line['codigoTipoLectura'], #OJUT
+	}
         
         
     def adapt_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
@@ -112,8 +138,9 @@ class CNMC_Utils(object):
             print (line)
 
             adaption = {
-                'SIPS2_PS_ELECTRICIDAD': self._adapt_type_electricidad(line),
-            }[file_type]
+                'SIPS2_PS_ELECTRICIDAD': self._adapt_type_electricidad,
+                'SIPS2_CONSUMOS_ELECTRICIDAD': self._adapt_type_consumos,
+            }[file_type](line)
 
             print (adaption)
             return adaption 

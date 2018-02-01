@@ -33,8 +33,10 @@ TARIFFS_OCSUM = {
 }
 
 class CNMC_Utils(object):
-    def __init__(self, cnmc_config, mongo_config):
+    def __init__(self, cnmc_config, mongo_config, destination_collection):
 	self.client = cnmc_client.Client(**cnmc_config)
+
+	self.destination_collection = destination_collection
 
 	# Initialize MongoDB collections
 	mongo = MongoClient("mongodb://" + mongo_config['connection_url'])
@@ -42,8 +44,12 @@ class CNMC_Utils(object):
 	    'cups': mongo[mongo_config['db']].giscedata_sips_ps,
 	    'consumptions': mongo[mongo_config['db']].giscedata_sips_consums,
 
-	    'destination_ps': mongo[mongo_config['db']].giscedata_sips_ps_fmtjul16,
-	    'destination_consumptions': mongo[mongo_config['db']].giscedata_sips_consums_fmtjul16,
+	    'destination': mongo[mongo_config['db']][self.destination_collection],
+
+	    #'destination_ps': mongo[mongo_config['db']].giscedata_sips_ps_fmtjul16,
+	    #'destination_consumptions': mongo[mongo_config['db']].giscedata_sips_consums_fmtjul16,
+
+	    'counters': mongo[mongo_config['db']].counters,
 	}
 
     def find_CUPS_by_zip(self, zipcode):
@@ -200,7 +206,8 @@ def main(zipcode, host, port, user, password, database, file_type, cnmc):
 	'password': password,
     }
 
-    utils = CNMC_Utils(cnmc_config, mongo_config)
+    destination_collection = "WTF"
+    utils = CNMC_Utils(cnmc_config, mongo_config, destination_collection)
 
     cups_list = utils.find_CUPS_by_zip(zipcode)
     SIPS_files = utils.fetch_SIPS(cups=cups_list[:3], as_csv=True, file_type=file_type)

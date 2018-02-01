@@ -110,7 +110,7 @@ class CNMC_Utils(object):
             'indicatiu_icp': line['codigoDisponibilidadICP'],
             'informacion_impagos': line['informacionImpagos'],
             'codigo_ps_contratable': line['codigoPSContratable'],
-        }
+        }, { 'name': line['cups'] }
 
         
     def _adapt_type_consumos(self, line):
@@ -138,7 +138,7 @@ class CNMC_Utils(object):
 	    'potencia_5': self._divide(line['potenciaDemandadaEnWP5'], 1000),
 	    'potencia_6': self._divide(line['potenciaDemandadaEnWP6'], 1000),
 	    'tipo_lectura': line['codigoTipoLectura'], #OJUT
-	}
+	}, { 'name': line['cups'], 'data_inicial': line['fechaInicioMesConsumo'], 'data_final': line['fechaFinMesConsumo'] }
         
         
     def adapt_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
@@ -150,14 +150,17 @@ class CNMC_Utils(object):
         :return: list of dict with the adapted data
         """ 
 	adapted = []
+	to_delete_list = []
         for line in data:
-            adaption = {
+            adaption, to_delete = {
                 'SIPS2_PS_ELECTRICIDAD': self._adapt_type_electricidad,
                 'SIPS2_CONSUMOS_ELECTRICIDAD': self._adapt_type_consumos,
             }[file_type](line)
-            adapted.append(adaption)
 
-        return adapted
+            adapted.append(adaption)
+            to_delete_list.append(to_delete)
+
+        return adapted, to_delete_list
 
 
     def save_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
@@ -166,7 +169,12 @@ class CNMC_Utils(object):
         
         After saving it data is adapted based on the file_type
         """
-        adapted_data = self.adapt_data(data, file_type)
+        adapted_data, to_delete = self.adapt_data(data, file_type)
+        
+        # Preventive delete of existing data 
+        for a_preventive_delete in to_delete:
+            self.collections[FILE_TYPES[file_type]].delete_many(a_preventive_delete)
+        
         return self.collections[FILE_TYPES[file_type]].insert_many(adapted_data)
 
 

@@ -182,7 +182,7 @@ class CNMC_Utils(object):
 @click.argument('file_type', type=click.Choice(LIST_OF_FILE_TYPES))
 def main(zipcode, host, port, user, password, database, file_type, cnmc):
     cnmc_config = {
-	'environment': 'cnmc',
+	'environment': cnmc,
     }
 
     mongo_config = {

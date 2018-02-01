@@ -7,7 +7,14 @@ from sets import Set
 
 import click
 
-LIST_OF_FILE_TYPES = ["SIPS2_PS_ELECTRICIDAD", "SIPS2_CONSUMOS_ELECTRICIDAD", "SIPS2_PS_GAS", "SIPS2_CONSUMOS_GAS"]
+# Available SIPS file types and related destination collection
+FILE_TYPES = {
+    "SIPS2_PS_ELECTRICIDAD": "destination_ps",
+    "SIPS2_CONSUMOS_ELECTRICIDAD": "destination_consumptions",
+    #"SIPS2_PS_GAS": None,
+    #"SIPS2_CONSUMOS_GAS": None,
+}
+LIST_OF_FILE_TYPES = list(FILE_TYPES)
 
 TARIFFS_OCSUM = {
     '001': "2.0A",

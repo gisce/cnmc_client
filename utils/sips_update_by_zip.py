@@ -56,10 +56,20 @@ class CNMC_Utils(object):
 
 	return list(cups)
 
+
     def fetch_SIPS(self, cups, file_type=LIST_OF_FILE_TYPES[0], as_csv=False):
 	return self.client.fetch_massive(cups=cups, file_type=file_type, as_csv=as_csv)
 
 
+    def _divide(self, amount, division):
+        if amount == "":
+            return None
+
+        assert float(division) != 0, "Division must not be 0"
+        
+        return float(amount) / float(division)
+        
+        
     def adapt_data(self, data):
 	adapted = []
         for line in data:

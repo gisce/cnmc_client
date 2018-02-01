@@ -93,6 +93,29 @@ class Client(object):
             raise ValueError('Result deserialization is not performed properly for "{}"'.format(repr(result)))
 
 
+    def fetch_massive(self, cups, file_type, as_csv=False):
+        """
+        Fetch massively a list of CUPS, internally will chunk it to ask N fetch requests
+
+        :param cups: list of cups to fetch
+        :param file_type: desired files to download, see available SIPS files
+        :param as_csv: bool flag to return a CSV or a BytesIO instance
+        :return: List of CNMC_File models //{'code': 200, 'result': <csv.DictReader instance at 0x7f194e0f23f8>, 'error': False}
+        """
+        results = []
+        number_of_cups = len(cups)
+        chunk_indexes = [x*CUPS_CHUNK_SIZE for x in range(0, number_of_cups/CUPS_CHUNK_SIZE + 1)]
+
+        for chunk_block in chunk_indexes:
+            cups_block = cups[chunk_block : chunk_block+CUPS_CHUNK_SIZE]
+
+            result = self.fetch(cups_block, file_type, as_csv)
+
+            results.append(result)
+
+        return results
+
+
     def fetch(self, cups, file_type, as_csv=False):
         """
         Fetch partial data for a list of CUPS

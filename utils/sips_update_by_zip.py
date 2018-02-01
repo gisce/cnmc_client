@@ -124,7 +124,8 @@ class CNMC_Utils(object):
 @click.option('--password', default=None, help='MongoDB password')
 @click.option('--database', default='database', help='MongoDB database')
 @click.argument('zipcode', type=click.STRING)
-def main(zipcode, host, port, user, password, database):
+@click.argument('file_type', type=click.STRING)
+def main(zipcode, host, port, user, password, database, file_type):
     cnmc_config = {
 	'environment': 'prod',
     }
@@ -140,7 +141,7 @@ def main(zipcode, host, port, user, password, database):
     # Initialize CNMC Client
 
     cups_list = utils.find_CUPS_by_zip(zipcode)
-    SIPS_files = utils.fetch_SIPS(cups=cups_list[:3], as_csv=True)
+    SIPS_files = utils.fetch_SIPS(cups=cups_list[:3], as_csv=True, file_type=file_type)
     
     for a_file in SIPS_files:
         if a_file.error:
@@ -148,7 +149,7 @@ def main(zipcode, host, port, user, password, database):
 
         SIPS_csv = a_file.result
 
-        utils.adapt_data(SIPS_csv)
+        utils.adapt_data(data=SIPS_csv, file_type=file_type)
 
 
 

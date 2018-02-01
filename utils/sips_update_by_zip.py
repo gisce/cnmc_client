@@ -9,6 +9,22 @@ import click
 
 LIST_OF_FILE_TYPES = ["SIPS2_PS_ELECTRICIDAD", "SIPS2_CONSUMOS_ELECTRICIDAD", "SIPS2_PS_GAS", "SIPS2_CONSUMOS_GAS"]
 
+TARIFFS_OCSUM = {
+    '001': "2.0A",
+    '003': "3.0A",
+    '004': "2.0DHA",
+    '005': "2.1A",
+    '006': "2.1DHA",
+    '007': "2.0DHS",
+    '008': "2.1DHS",
+    '011': "3.1A",
+    '012': "6.1",
+    '013': "6.2",
+    '014': "6.3",
+    '015': "6.4",
+    '016': "6.5"
+}
+
 class CNMC_Utils(object):
     def __init__(self, cnmc_config, mongo_config):
 	self.client = cnmc_client.Client(**cnmc_config)

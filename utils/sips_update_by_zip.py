@@ -164,20 +164,26 @@ class CNMC_Utils(object):
 
         :param data: an iterable list/CSVReader of dict / DictReader
         :param file_type: the type of data
-        :return: list of dict with the adapted data
+        :return: list of dict with the adapted data, list of keys to make a preventive delete, new counter
         """ 
+        adaption_method = {
+            'SIPS2_PS_ELECTRICIDAD': self._adapt_type_electricidad,
+            'SIPS2_CONSUMOS_ELECTRICIDAD': self._adapt_type_consumos,
+        }[file_type]
+
 	adapted = []
 	to_delete_list = []
+	counter = self.get_counter(file_type) 
         for line in data:
-            adaption, to_delete = {
-                'SIPS2_PS_ELECTRICIDAD': self._adapt_type_electricidad,
-                'SIPS2_CONSUMOS_ELECTRICIDAD': self._adapt_type_consumos,
-            }[file_type](line)
+            adaption, to_delete = adaption_method(line)
+
+            adaption['id'] = counter
 
             adapted.append(adaption)
             to_delete_list.append(to_delete)
+            counter += 1
 
-        return adapted, to_delete_list
+        return adapted, to_delete_list, counter
 
 
     def save_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
@@ -186,13 +192,15 @@ class CNMC_Utils(object):
         
         After saving it data is adapted based on the file_type
         """
-        adapted_data, to_delete = self.adapt_data(data, file_type)
+        adapted_data, to_delete, new_counter = self.adapt_data(data, file_type)
         
         # Preventive delete of existing data 
         for a_preventive_delete in to_delete:
-            self.collections[FILE_TYPES[file_type]].delete_many(a_preventive_delete)
+            self.collections['destination'].delete_many(a_preventive_delete)
         
-        return self.collections[FILE_TYPES[file_type]].insert_many(adapted_data)
+        self.collections['destination'].insert_many(adapted_data)   
+        self.set_counter(file_type, new_counter)
+
 
 
 
@@ -229,6 +237,7 @@ def main(zipcode, host, port, user, password, database, file_type, cnmc):
 
         SIPS_csv = a_file.result
         utils.save_data(data=SIPS_csv, file_type=file_type)
+        current_counter = utils.get_counter(file_type)
 
 
 if __name__ == '__main__':

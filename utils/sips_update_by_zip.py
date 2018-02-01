@@ -142,17 +142,20 @@ class CNMC_Utils(object):
         
         
     def adapt_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
+        """ 
+        Adapt incoming SIPS data based on file type and configured requirements
+
+        :param data: an iterable list/CSVReader of dict / DictReader
+        :param file_type: the type of data
+        :return: list of dict with the adapted data
+        """ 
 	adapted = []
         for line in data:
-            print (line)
-
             adaption = {
                 'SIPS2_PS_ELECTRICIDAD': self._adapt_type_electricidad,
                 'SIPS2_CONSUMOS_ELECTRICIDAD': self._adapt_type_consumos,
             }[file_type](line)
 
-            print (adaption)
-            return adaption 
 
 
 @click.command()

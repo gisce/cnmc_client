@@ -17,19 +17,19 @@ FILE_TYPES = {
 LIST_OF_FILE_TYPES = list(FILE_TYPES)
 
 TARIFFS_OCSUM = {
-    "2.0A": "001",
-    "3.0A": "003",
-    "2.0DHA": "004",
-    "2.1A": "005",
-    "2.1DHA": "006",
-    "2.0DHS": "007",
-    "2.1DHS": "008",
-    "3.1A": "011",
-    "6.1": "012",
-    "6.2": "013",
-    "6.3": "014",
-    "6.4": "015",
-    "6.5": "016",
+    '001': "2.0A",
+    '003': "3.0A",
+    '004': "2.0DHA",
+    '005': "2.1A",
+    '006': "2.1DHA",
+    '007': "2.0DHS",
+    '008': "2.1DHS",
+    '011': "3.1A",
+    '012': "6.1",
+    '013': "6.2",
+    '014': "6.3",
+    '015': "6.4",
+    '016': "6.5",
 }
 
 class CNMC_Utils(object):
@@ -81,6 +81,7 @@ class CNMC_Utils(object):
 
 
     def _adapt_type_electricidad(self, line):
+        print (line)
         return {
             'name': line['cups'],
             'der_acces_llano': self._divide(line['valorDerechosAccesoW'], 1000),
@@ -90,7 +91,7 @@ class CNMC_Utils(object):
             'cnae': line['CNAE'],
             'tipo_pm': line['codigoClasificacionPS'],
             'codigoTipoSuministro': '',
-            'codigoTarifaATREnVigor': '001',
+            'codigoTarifaATREnVigor': TARIFFS_OCSUM[line['codigoTarifaATREnVigor']],
             'motivoEstadoNoContratable': line['motivoEstadoNoContratable'],
             'codi_postal': line['codigoPostalPS'],
             'data_alta': line['fechaAltaSuministro'],

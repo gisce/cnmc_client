@@ -129,6 +129,11 @@ class Client(object):
         See https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
 
         Alternative, disabled right now: https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
+
+        :param cups: list of cups to fetch
+        :param file_type: desired files to download, see available SIPS files
+        :param as_csv: bool flag to return a CSV or a BytesIO instance
+        :return: CNMC_File model //{'code': 200, 'result': <csv.DictReader instance at 0x7f194e0f23f8>, 'error': False}
         """
 
         assert type(cups) in [list] and len(cups) > 0, "CUPS to downlaod must be a non-empty list"

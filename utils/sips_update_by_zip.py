@@ -57,9 +57,29 @@ class CNMC_Utils(object):
 	return list(cups)
 
     def fetch_SIPS(self, cups, file_type=LIST_OF_FILE_TYPES[0], as_csv=False):
-	response = self.client.fetch(cups=cups, file_type=file_type, as_csv=as_csv)
-	assert not response.error
-	return response.result
+	return self.client.fetch_massive(cups=cups, file_type=file_type, as_csv=as_csv)
+
+
+    def adapt_data(self, data):
+	adapted = []
+        for line in data:
+            print (line)
+            adaption_pattern = {
+                'der_acces_llano': float(line['valorDerechosAccesoW'])/1000,
+                'data_ult_lect': line['fechaUltimaLectura'],
+                'primera_vivienda': line['esViviendaHabitual'],
+                'data_ult_canv': line['fechaUltimoCambioComercializador'],
+                'cnae': line['CNAE'],
+                'tipo_pm': line['codigoClasificacionPS'],
+                'codigoTipoSuministro': '',
+                'codigoTarifaATREnVigor': '001',
+                'motivoEstadoNoContratable': line['motivoEstadoNoContratable'],
+                'codi_postal': line['codigoPostalPS'],
+                'data_alta': line['fechaAltaSuministro'],
+                #'': line[''],
+            }
+            print (adaption_pattern)
+            return adaption_pattern 
 
 
 @click.command()

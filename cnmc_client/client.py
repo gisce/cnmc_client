@@ -5,6 +5,8 @@ from .models import ListSchema, TestSchema, FilesSchema
 import os
 import io
 import csv
+from sets import Set
+
 
 AVAILABLE_FILE_STATES = ["DISPONIBLE", "DESCARGADO"]
 
@@ -107,7 +109,7 @@ class Client(object):
         Alternative, disabled right now: https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
         """
 
-        assert type(cups) in [list]
+        assert type(cups) in [list, Set]
         assert file_type in ["SIPS2_PS_ELECTRICIDAD", "SIPS2_CONSUMOS_ELECTRICIDAD", "SIPS2_PS_GAS", "SIPS2_CONSUMOS_GAS"]
 
         params = {

@@ -123,11 +123,12 @@ class CNMC_Utils(object):
 @click.option('--user', default=None, help='MongoDB user')
 @click.option('--password', default=None, help='MongoDB password')
 @click.option('--database', default='database', help='MongoDB database')
+@click.option('--cnmc', default='prod', help='CNMC environment')
 @click.argument('zipcode', type=click.STRING)
 @click.argument('file_type', type=click.STRING)
-def main(zipcode, host, port, user, password, database, file_type):
+def main(zipcode, host, port, user, password, database, file_type, cnmc):
     cnmc_config = {
-	'environment': 'prod',
+	'environment': 'cnmc',
     }
 
     mongo_config = {

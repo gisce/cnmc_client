@@ -77,7 +77,7 @@ class CNMC_Utils(object):
             adaption_pattern = {
                 'der_acces_llano': self._divide(line['valorDerechosAccesoW'], 1000),
                 'data_ult_lect': line['fechaUltimaLectura'],
-                'primera_vivienda': line['esViviendaHabitual'],
+                'primera_vivienda': line['esViviendaHabitual'], #OJUT
                 'data_ult_canv': line['fechaUltimoCambioComercializador'],
                 'cnae': line['CNAE'],
                 'tipo_pm': line['codigoClasificacionPS'],
@@ -92,6 +92,19 @@ class CNMC_Utils(object):
                 'pot_cont_p4': self._divide(line['potenciasContratadasEnWP4'], 1000),
                 'pot_cont_p5': self._divide(line['potenciasContratadasEnWP5'], 1000),
                 'pot_cont_p6': self._divide(line['potenciasContratadasEnWP6'], 1000),
+                'data_ulti_mov': line['fechaUltimoMovimientoContrato'],
+                'pot_max_puesta': self._divide(line['potenciaMaximaAPMW'], 1000),
+                'der_extensio': self._divide(line['valorDerechosExtensionW'], 1000),
+                'fianza': line['importeDepositoGarantiaEuros'],
+                'perfil_consum': line['tipoPerfilConsumo'], #OJUT!
+                'distri': line['nombreEmpresaDistribuidora'],
+                'pot_max_bie': self._divide(line['potenciaMaximaBIEW'], 1000),
+                'persona_fj': line['tipoIdTitular'], #OJUT
+                'ine_provincia': line['codigoProvinciaPS'],
+                'ine_municipio': line['municipioPS'],
+                'indicatiu_icp': line['codigoDisponibilidadICP'],
+                'informacion_impagos': line['informacionImpagos'],
+                'codigo_ps_contratable': line['codigoPSContratable'],
             }
             print (adaption_pattern)
             return adaption_pattern 

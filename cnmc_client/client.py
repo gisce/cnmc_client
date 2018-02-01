@@ -5,10 +5,9 @@ from .models import ListSchema, TestSchema, FilesSchema
 import os
 import io
 import csv
-from sets import Set
-
 
 AVAILABLE_FILE_STATES = ["DISPONIBLE", "DESCARGADO"]
+CUPS_CHUNK_SIZE = 10
 
 class Client(object):
     def __init__(self, key=None, secret=None, environment=None):
@@ -109,7 +108,8 @@ class Client(object):
         Alternative, disabled right now: https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
         """
 
-        assert type(cups) in [list, Set]
+        assert type(cups) in [list] and len(cups) > 0, "CUPS to downlaod must be a non-empty list"
+        assert len(cups) <= CUPS_CHUNK_SIZE, "CUPS list is greater ('{}') than the limit by request '{}'. Hint: use the fetch_massive() method".format(len(cups), CUPS_CHUNK_SIZE)
         assert file_type in ["SIPS2_PS_ELECTRICIDAD", "SIPS2_CONSUMOS_ELECTRICIDAD", "SIPS2_PS_GAS", "SIPS2_CONSUMOS_GAS"]
 
         params = {

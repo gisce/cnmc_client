@@ -69,45 +69,52 @@ class CNMC_Utils(object):
         
         return float(amount) / float(division)
         
+    def _adapt_type_electricidad(self, line):
+	return {
+	    'der_acces_llano': self._divide(line['valorDerechosAccesoW'], 1000),
+	    'data_ult_lect': line['fechaUltimaLectura'],
+	    'primera_vivienda': line['esViviendaHabitual'], #OJUT
+	    'data_ult_canv': line['fechaUltimoCambioComercializador'],
+	    'cnae': line['CNAE'],
+	    'tipo_pm': line['codigoClasificacionPS'],
+	    'codigoTipoSuministro': '',
+	    'codigoTarifaATREnVigor': '001',
+	    'motivoEstadoNoContratable': line['motivoEstadoNoContratable'],
+	    'codi_postal': line['codigoPostalPS'],
+	    'data_alta': line['fechaAltaSuministro'],
+	    'pot_cont_p1': self._divide(line['potenciasContratadasEnWP1'], 1000),
+	    'pot_cont_p2': self._divide(line['potenciasContratadasEnWP2'], 1000),
+	    'pot_cont_p3': self._divide(line['potenciasContratadasEnWP3'], 1000),
+	    'pot_cont_p4': self._divide(line['potenciasContratadasEnWP4'], 1000),
+	    'pot_cont_p5': self._divide(line['potenciasContratadasEnWP5'], 1000),
+	    'pot_cont_p6': self._divide(line['potenciasContratadasEnWP6'], 1000),
+	    'data_ulti_mov': line['fechaUltimoMovimientoContrato'],
+	    'pot_max_puesta': self._divide(line['potenciaMaximaAPMW'], 1000),
+	    'der_extensio': self._divide(line['valorDerechosExtensionW'], 1000),
+	    'fianza': line['importeDepositoGarantiaEuros'],
+	    'perfil_consum': line['tipoPerfilConsumo'], #OJUT!
+	    'distri': line['nombreEmpresaDistribuidora'],
+	    'pot_max_bie': self._divide(line['potenciaMaximaBIEW'], 1000),
+	    'persona_fj': line['tipoIdTitular'], #OJUT
+	    'ine_provincia': line['codigoProvinciaPS'],
+	    'ine_municipio': line['municipioPS'],
+	    'indicatiu_icp': line['codigoDisponibilidadICP'],
+	    'informacion_impagos': line['informacionImpagos'],
+	    'codigo_ps_contratable': line['codigoPSContratable'],
+	}
+
         
-    def adapt_data(self, data):
+        
+    def adapt_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
 	adapted = []
         for line in data:
             print (line)
-            adaption_pattern = {
-                'der_acces_llano': self._divide(line['valorDerechosAccesoW'], 1000),
-                'data_ult_lect': line['fechaUltimaLectura'],
-                'primera_vivienda': line['esViviendaHabitual'], #OJUT
-                'data_ult_canv': line['fechaUltimoCambioComercializador'],
-                'cnae': line['CNAE'],
-                'tipo_pm': line['codigoClasificacionPS'],
-                'codigoTipoSuministro': '',
-                'codigoTarifaATREnVigor': '001',
-                'motivoEstadoNoContratable': line['motivoEstadoNoContratable'],
-                'codi_postal': line['codigoPostalPS'],
-                'data_alta': line['fechaAltaSuministro'],
-                'pot_cont_p1': self._divide(line['potenciasContratadasEnWP1'], 1000),
-                'pot_cont_p2': self._divide(line['potenciasContratadasEnWP2'], 1000),
-                'pot_cont_p3': self._divide(line['potenciasContratadasEnWP3'], 1000),
-                'pot_cont_p4': self._divide(line['potenciasContratadasEnWP4'], 1000),
-                'pot_cont_p5': self._divide(line['potenciasContratadasEnWP5'], 1000),
-                'pot_cont_p6': self._divide(line['potenciasContratadasEnWP6'], 1000),
-                'data_ulti_mov': line['fechaUltimoMovimientoContrato'],
-                'pot_max_puesta': self._divide(line['potenciaMaximaAPMW'], 1000),
-                'der_extensio': self._divide(line['valorDerechosExtensionW'], 1000),
-                'fianza': line['importeDepositoGarantiaEuros'],
-                'perfil_consum': line['tipoPerfilConsumo'], #OJUT!
-                'distri': line['nombreEmpresaDistribuidora'],
-                'pot_max_bie': self._divide(line['potenciaMaximaBIEW'], 1000),
-                'persona_fj': line['tipoIdTitular'], #OJUT
-                'ine_provincia': line['codigoProvinciaPS'],
-                'ine_municipio': line['municipioPS'],
-                'indicatiu_icp': line['codigoDisponibilidadICP'],
-                'informacion_impagos': line['informacionImpagos'],
-                'codigo_ps_contratable': line['codigoPSContratable'],
-            }
-            print (adaption_pattern)
-            return adaption_pattern 
+
+            if file_type == "SIPS2_PS_ELECTRICIDAD":
+                adaption = self._adapt_type_electricidad(line)
+
+            print (adaption)
+            return adaption 
 
 
 @click.command()

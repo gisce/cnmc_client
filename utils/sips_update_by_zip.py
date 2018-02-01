@@ -210,7 +210,8 @@ class CNMC_Utils(object):
 @click.option('--cnmc', default='prod', help='CNMC environment')
 @click.argument('zipcode', type=click.STRING)
 @click.argument('file_type', type=click.Choice(LIST_OF_FILE_TYPES))
-def main(zipcode, host, port, user, password, database, file_type, cnmc):
+@click.argument('destination_collection', type=click.STRING)
+def main(zipcode, host, port, user, password, database, file_type, cnmc, destination_collection):
     cnmc_config = {
 	'environment': cnmc,
     }
@@ -222,7 +223,6 @@ def main(zipcode, host, port, user, password, database, file_type, cnmc):
 	'password': password,
     }
 
-    destination_collection = "WTF"
     utils = CNMC_Utils(cnmc_config, mongo_config, destination_collection)
 
     cups_list = utils.find_CUPS_by_zip(zipcode)

@@ -79,6 +79,7 @@ class CNMC_Utils(object):
 
     def _adapt_type_electricidad(self, line):
         return {
+            'name': line['cups'],
             'der_acces_llano': self._divide(line['valorDerechosAccesoW'], 1000),
             'data_ult_lect': line['fechaUltimaLectura'],
             'primera_vivienda': line['esViviendaHabitual'], #OJUT
@@ -114,6 +115,7 @@ class CNMC_Utils(object):
         
     def _adapt_type_consumos(self, line):
 	return {
+            'name': line['cups'],
 	    'data_inicial': line['fechaInicioMesConsumo'],
 	    'data_final': line['fechaFinMesConsumo'],
 	    'tarifa': line['codigoTarifaATR'],

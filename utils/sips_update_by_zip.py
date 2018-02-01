@@ -75,7 +75,7 @@ class CNMC_Utils(object):
         for line in data:
             print (line)
             adaption_pattern = {
-                'der_acces_llano': float(line['valorDerechosAccesoW'])/1000,
+                'der_acces_llano': self._divide(line['valorDerechosAccesoW'], 1000),
                 'data_ult_lect': line['fechaUltimaLectura'],
                 'primera_vivienda': line['esViviendaHabitual'],
                 'data_ult_canv': line['fechaUltimoCambioComercializador'],
@@ -86,7 +86,12 @@ class CNMC_Utils(object):
                 'motivoEstadoNoContratable': line['motivoEstadoNoContratable'],
                 'codi_postal': line['codigoPostalPS'],
                 'data_alta': line['fechaAltaSuministro'],
-                #'': line[''],
+                'pot_cont_p1': self._divide(line['potenciasContratadasEnWP1'], 1000),
+                'pot_cont_p2': self._divide(line['potenciasContratadasEnWP2'], 1000),
+                'pot_cont_p3': self._divide(line['potenciasContratadasEnWP3'], 1000),
+                'pot_cont_p4': self._divide(line['potenciasContratadasEnWP4'], 1000),
+                'pot_cont_p5': self._divide(line['potenciasContratadasEnWP5'], 1000),
+                'pot_cont_p6': self._divide(line['potenciasContratadasEnWP6'], 1000),
             }
             print (adaption_pattern)
             return adaption_pattern 

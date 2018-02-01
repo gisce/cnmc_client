@@ -54,7 +54,7 @@ class CNMC_Utils(object):
 	for a_cups in self.collections['cups'].find(search_params, fields):
 	    cups.add(a_cups['name'])
 
-	return cups
+	return list(cups)
 
     def fetch_SIPS(self, cups, file_type=LIST_OF_FILE_TYPES[0], as_csv=False):
 	response = self.client.fetch(cups=cups, file_type=file_type, as_csv=as_csv)

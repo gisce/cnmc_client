@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # -*- coding: utf-8 -*-
 from marshmallow import Schema, fields, post_load
 from munch import Munch
@@ -62,6 +63,9 @@ class ListEntrySchema(Schema):
     fechaCaducidad = fields.Str()
     uriDescargas = fields.Str()
     descripcion = fields.Str(attribute="descripción")
+
+    @post_load
+    def create_model(self, data):
 
     @post_load
     def create_model(self, data):

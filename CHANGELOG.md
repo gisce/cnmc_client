@@ -1,3 +1,7 @@
+# 0.3.0
+- Created `utils/sips_update_by_zip.py` script
+  - Desired to update SIPS information for all CUPS that belongs to a zipcode
+
 # 0.2.0
 - Package now is called "cnmc_client" instead of "cnmc"
 - Client.fetch now accepts 'as_csv' flag

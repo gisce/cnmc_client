@@ -42,7 +42,7 @@ class CNMC_Utils(object):
 	    'cups': mongo[mongo_config['db']].giscedata_sips_ps,
 	    'consumptions': mongo[mongo_config['db']].giscedata_sips_consums,
 
-	    'destination_cups': mongo[mongo_config['db']].giscedata_sips_ps_fmtjul16,
+	    'destination_ps': mongo[mongo_config['db']].giscedata_sips_ps_fmtjul16,
 	    'destination_consumptions': mongo[mongo_config['db']].giscedata_sips_consums_fmtjul16,
 	}
 

@@ -155,6 +155,19 @@ class CNMC_Utils(object):
                 'SIPS2_PS_ELECTRICIDAD': self._adapt_type_electricidad,
                 'SIPS2_CONSUMOS_ELECTRICIDAD': self._adapt_type_consumos,
             }[file_type](line)
+            adapted.append(adaption)
+
+        return adapted
+
+
+    def save_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
+        """
+        Save data to destiantion collections 
+        
+        After saving it data is adapted based on the file_type
+        """
+        adapted_data = self.adapt_data(data, file_type)
+        return self.collections[FILE_TYPES[file_type]].insert_many(adapted_data)
 
 
 
@@ -189,9 +202,7 @@ def main(zipcode, host, port, user, password, database, file_type, cnmc):
             continue
 
         SIPS_csv = a_file.result
-
-        utils.adapt_data(data=SIPS_csv, file_type=file_type)
-
+        utils.save_data(data=SIPS_csv, file_type=file_type)
 
 
 if __name__ == '__main__':

@@ -154,7 +154,7 @@ class CNMC_Utils(object):
 @click.option('--database', default='database', help='MongoDB database')
 @click.option('--cnmc', default='prod', help='CNMC environment')
 @click.argument('zipcode', type=click.STRING)
-@click.argument('file_type', type=click.STRING)
+@click.argument('file_type', type=click.Choice(LIST_OF_FILE_TYPES))
 def main(zipcode, host, port, user, password, database, file_type, cnmc):
     cnmc_config = {
 	'environment': 'cnmc',

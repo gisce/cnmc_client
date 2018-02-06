@@ -64,10 +64,8 @@ class CNMC_Utils(object):
 
 	return list(cups)
 
-
     def fetch_SIPS(self, cups, file_type=LIST_OF_FILE_TYPES[0], as_csv=False):
 	return self.client.fetch_massive(cups=cups, file_type=file_type, as_csv=as_csv)
-
 
     def _divide(self, amount, division):
         if amount == "":
@@ -76,7 +74,6 @@ class CNMC_Utils(object):
         assert float(division) != 0, "Division must not be 0"
         
         return float(amount) / float(division)
-
 
     def _adapt_type_electricidad(self, line):
         return {
@@ -141,17 +138,23 @@ class CNMC_Utils(object):
 	    'tipo_lectura': line['codigoTipoLectura'], #OJUT
 	}, { 'name': line['cups'], 'data_inicial': line['fechaInicioMesConsumo'], 'data_final': line['fechaFinMesConsumo'] }
         
-        
     def get_counter(self, file_type):
         try:
             return self.collections['counters'].find_one({ "_id": self.destination_collection}, {"counter": 1})['counter']
         except:
             return 1
 
-
     def set_counter(self, file_type, counter):
         return self.collections['counters'].update_one({ "_id": self.destination_collection}, {"$set": {"counter": counter}}, upsert=True)
 
+    def _get_adaptor(self, file_type):
+        """ 
+        Return the adaptor based on the file_type
+        """ 
+        return {
+            'SIPS2_PS_ELECTRICIDAD': self._adapt_type_electricidad,
+            'SIPS2_CONSUMOS_ELECTRICIDAD': self._adapt_type_consumos,
+        }[file_type]
 
     def adapt_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
         """ 
@@ -160,11 +163,7 @@ class CNMC_Utils(object):
         :param file_type: the type of data
         :return: list of dict with the adapted data, list of keys to make a preventive delete, new counter
         """ 
-        adaption_method = {
-            'SIPS2_PS_ELECTRICIDAD': self._adapt_type_electricidad,
-            'SIPS2_CONSUMOS_ELECTRICIDAD': self._adapt_type_consumos,
-        }[file_type]
-
+	adaption_method = self._get_adaptor(file_type)
 	adapted = []
 	to_delete_list = []
 	counter = self.get_counter(file_type) 
@@ -187,11 +186,7 @@ class CNMC_Utils(object):
         :param file_type: the type of data
         :return: Number of updated elements
         """ 
-        adaption_method = {
-            'SIPS2_PS_ELECTRICIDAD': self._adapt_type_electricidad,
-            'SIPS2_CONSUMOS_ELECTRICIDAD': self._adapt_type_consumos,
-        }[file_type]
-
+	adaption_method = self._get_adaptor(file_type)
         for counter, line in enumerate(data):
             adaption, search_criteria = adaption_method(line)
             self.collections['destination'].update_one(search_criteria, {'$set': adaption})

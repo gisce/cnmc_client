@@ -179,6 +179,24 @@ class CNMC_Utils(object):
 
         return adapted, to_delete_list, counter
 
+    def save_and_adapt_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
+        """ 
+        Adapt incoming SIPS data based on file type and configured requirements and update related field
+
+        :param data: an iterable list/CSVReader of dict / DictReader
+        :param file_type: the type of data
+        :return: Number of updated elements
+        """ 
+        adaption_method = {
+            'SIPS2_PS_ELECTRICIDAD': self._adapt_type_electricidad,
+            'SIPS2_CONSUMOS_ELECTRICIDAD': self._adapt_type_consumos,
+        }[file_type]
+
+        for counter, line in enumerate(data):
+            adaption, search_criteria = adaption_method(line)
+            self.collections['destination'].update_one(search_criteria, {'$set': adaption})
+
+        return counter+1
 
     def save_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
         """

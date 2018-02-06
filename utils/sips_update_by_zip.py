@@ -252,7 +252,12 @@ def main(zipcode, host, port, user, password, database, file_type, cnmc, destina
     utils = CNMC_Utils(cnmc_config, mongo_config, collections_config)
 
     cups_list = utils.find_CUPS_by_zip(zipcode)
-    SIPS_files = utils.fetch_SIPS(cups=cups_list[:3], as_csv=True, file_type=file_type)
+
+    if not cups_list:
+        print ("There are no matching cups for zipcode '{}'".format(zipcode))
+        return False
+
+    SIPS_files = utils.fetch_SIPS(cups=cups_list, as_csv=True, file_type=file_type)
     
     how_many = 0
     for a_file in SIPS_files:

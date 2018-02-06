@@ -217,6 +217,7 @@ class CNMC_Utils(object):
         self.collections['destination'].insert_many(adapted_data)   
         self.set_counter(file_type, new_counter)
 
+        return len(adapted_data)
 
 
 
@@ -253,13 +254,15 @@ def main(zipcode, host, port, user, password, database, file_type, cnmc, destina
     cups_list = utils.find_CUPS_by_zip(zipcode)
     SIPS_files = utils.fetch_SIPS(cups=cups_list[:3], as_csv=True, file_type=file_type)
     
+    how_many = 0
     for a_file in SIPS_files:
         if a_file.error:
             continue
 
         SIPS_csv = a_file.result
-        utils.save_data(data=SIPS_csv, file_type=file_type)
-        current_counter = utils.get_counter(file_type)
+        how_many += utils.save_data(data=SIPS_csv, file_type=file_type)
+
+    print ("Update of SIPS has been performed for '{}' entries of type {} and  [zip: {}]".format(how_many, file_type, zipcode))
 
 
 if __name__ == '__main__':

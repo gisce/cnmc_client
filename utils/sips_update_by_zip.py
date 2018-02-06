@@ -156,7 +156,7 @@ class CNMC_Utils(object):
             'SIPS2_CONSUMOS_ELECTRICIDAD': self._adapt_type_consumos,
         }[file_type]
 
-    def adapt_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
+    def _handle_with_delete(self, data, file_type=LIST_OF_FILE_TYPES[0]):
         """ 
         Adapt incoming SIPS data based on file type and configured requirements
         :param data: an iterable list/CSVReader of dict / DictReader
@@ -178,7 +178,7 @@ class CNMC_Utils(object):
 
         return adapted, to_delete_list, counter
 
-    def save_and_adapt_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
+    def _handle_with_update(self, data, file_type=LIST_OF_FILE_TYPES[0]):
         """ 
         Adapt incoming SIPS data based on file type and configured requirements and update related field
 
@@ -199,13 +199,14 @@ class CNMC_Utils(object):
         
         After saving it data is adapted based on the file_type
         """
-        # Workaround for PS files to just update documents instead of delete and insert
-        if file_type == "SIPS2_PS_ELECTRICIDAD":
-            return self.save_and_adapt_data(data, file_type)
 
-        adapted_data, to_delete, new_counter = self.adapt_data(data, file_type)
+        # PS files just update documents instead of delete and insert
+        if file_type == "SIPS2_PS_ELECTRICIDAD":
+            return self._handle_with_update(data, file_type)
+
+        adapted_data, to_delete, new_counter = self._handle_with_delete(data, file_type)
         
-        # Preventive delete of existing data 
+        # For other types preventive delete of existing data 
         for a_preventive_delete in to_delete:
             self.collections['destination'].delete_many(a_preventive_delete)
         

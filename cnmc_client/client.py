@@ -7,6 +7,7 @@ import io
 import csv
 
 AVAILABLE_FILE_STATES = ["DISPONIBLE", "DESCARGADO"]
+CUPS_CHUNK_SIZE = 10
 
 class Client(object):
     def __init__(self, key=None, secret=None, environment=None):
@@ -92,6 +93,29 @@ class Client(object):
             raise ValueError('Result deserialization is not performed properly for "{}"'.format(repr(result)))
 
 
+    def fetch_massive(self, cups, file_type, as_csv=False):
+        """
+        Fetch massively a list of CUPS, internally will chunk it to ask N fetch requests
+
+        :param cups: list of cups to fetch
+        :param file_type: desired files to download, see available SIPS files
+        :param as_csv: bool flag to return a CSV or a BytesIO instance
+        :return: List of CNMC_File models //{'code': 200, 'result': <csv.DictReader instance at 0x7f194e0f23f8>, 'error': False}
+        """
+        results = []
+        number_of_cups = len(cups)
+        chunk_indexes = [x*CUPS_CHUNK_SIZE for x in range(0, number_of_cups/CUPS_CHUNK_SIZE + 1)]
+
+        for chunk_block in chunk_indexes:
+            cups_block = cups[chunk_block : chunk_block+CUPS_CHUNK_SIZE]
+
+            result = self.fetch(cups_block, file_type, as_csv)
+
+            results.append(result)
+
+        return results
+
+
     def fetch(self, cups, file_type, as_csv=False):
         """
         Fetch partial data for a list of CUPS
@@ -105,9 +129,15 @@ class Client(object):
         See https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
 
         Alternative, disabled right now: https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
+
+        :param cups: list of cups to fetch
+        :param file_type: desired files to download, see available SIPS files
+        :param as_csv: bool flag to return a CSV or a BytesIO instance
+        :return: CNMC_File model //{'code': 200, 'result': <csv.DictReader instance at 0x7f194e0f23f8>, 'error': False}
         """
 
-        assert type(cups) in [list]
+        assert type(cups) in [list] and len(cups) > 0, "CUPS to downlaod must be a non-empty list"
+        assert len(cups) <= CUPS_CHUNK_SIZE, "CUPS list is greater ('{}') than the limit by request '{}'. Hint: use the fetch_massive() method".format(len(cups), CUPS_CHUNK_SIZE)
         assert file_type in ["SIPS2_PS_ELECTRICIDAD", "SIPS2_CONSUMOS_ELECTRICIDAD", "SIPS2_PS_GAS", "SIPS2_CONSUMOS_GAS"]
 
         params = {

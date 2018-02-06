@@ -204,6 +204,10 @@ class CNMC_Utils(object):
         
         After saving it data is adapted based on the file_type
         """
+        # Workaround for PS files to just update documents instead of delete and insert
+        if file_type == "SIPS2_PS_ELECTRICIDAD":
+            return self.save_and_adapt_data(data, file_type)
+
         adapted_data, to_delete, new_counter = self.adapt_data(data, file_type)
         
         # Preventive delete of existing data 

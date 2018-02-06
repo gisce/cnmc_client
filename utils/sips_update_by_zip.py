@@ -33,19 +33,17 @@ TARIFFS_OCSUM = {
 }
 
 class CNMC_Utils(object):
-    def __init__(self, cnmc_config, mongo_config, destination_collection):
+    def __init__(self, cnmc_config, mongo_config, collections_config):
 	self.client = cnmc_client.Client(**cnmc_config)
 
-	self.destination_collection = destination_collection
+	self.source_collection = collections_config['source']
+	self.destination_collection = collections_config['destination']
 
 	# Initialize MongoDB collections
 	mongo = MongoClient("mongodb://" + mongo_config['connection_url'])
 	self.collections = {
-	    'cups': mongo[mongo_config['db']].giscedata_sips_ps,
-	    'consumptions': mongo[mongo_config['db']].giscedata_sips_consums,
-
+	    'cups': mongo[mongo_config['db']][self.source_collection],
 	    'destination': mongo[mongo_config['db']][self.destination_collection],
-
 	    'counters': mongo[mongo_config['db']].counters,
 	}
 
@@ -81,7 +79,6 @@ class CNMC_Utils(object):
 
 
     def _adapt_type_electricidad(self, line):
-        print (line)
         return {
             'name': line['cups'],
             'der_acces_llano': self._divide(line['valorDerechosAccesoW'], 1000),
@@ -159,7 +156,6 @@ class CNMC_Utils(object):
     def adapt_data(self, data, file_type=LIST_OF_FILE_TYPES[0]):
         """ 
         Adapt incoming SIPS data based on file type and configured requirements
-
         :param data: an iterable list/CSVReader of dict / DictReader
         :param file_type: the type of data
         :return: list of dict with the adapted data, list of keys to make a preventive delete, new counter
@@ -209,10 +205,11 @@ class CNMC_Utils(object):
 @click.option('--password', default=None, help='MongoDB password')
 @click.option('--database', default='database', help='MongoDB database')
 @click.option('--cnmc', default='prod', help='CNMC environment')
+@click.option('--source', default='giscedata_sips_ps', help='Collection where to search CUPS by zipcode')
 @click.argument('zipcode', type=click.STRING)
 @click.argument('file_type', type=click.Choice(LIST_OF_FILE_TYPES))
 @click.argument('destination_collection', type=click.STRING)
-def main(zipcode, host, port, user, password, database, file_type, cnmc, destination_collection):
+def main(zipcode, host, port, user, password, database, file_type, cnmc, destination_collection, source):
     cnmc_config = {
 	'environment': cnmc,
     }
@@ -224,7 +221,12 @@ def main(zipcode, host, port, user, password, database, file_type, cnmc, destina
 	'password': password,
     }
 
-    utils = CNMC_Utils(cnmc_config, mongo_config, destination_collection)
+    collections_config = {
+	'source': source,
+	'destination': destination_collection,
+    }
+
+    utils = CNMC_Utils(cnmc_config, mongo_config, collections_config)
 
     cups_list = utils.find_CUPS_by_zip(zipcode)
     SIPS_files = utils.fetch_SIPS(cups=cups_list[:3], as_csv=True, file_type=file_type)

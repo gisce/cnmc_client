@@ -65,9 +65,6 @@ class ListEntrySchema(Schema):
 
     @post_load
     def create_model(self, data):
-
-    @post_load
-    def create_model(self, data):
         return CNMC_ListEntry(**data)
 
 

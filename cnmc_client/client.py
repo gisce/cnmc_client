@@ -141,9 +141,6 @@ class Client(object):
         assert file_type in ["SIPS2_PS_ELECTRICIDAD", "SIPS2_CONSUMOS_ELECTRICIDAD", "SIPS2_PS_GAS", "SIPS2_CONSUMOS_GAS"]
 
         params = {
-        assert file_type in ["SIPS2_PS_ELECTRICIDAD", "SIPS2_CONSUMOS_ELECTRICIDAD", "SIPS2_PS_GAS", "SIPS2_CONSUMOS_GAS"]
-
-        params = {
             "cups": ",".join(cups)
         }
 

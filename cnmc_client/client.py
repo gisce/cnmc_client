@@ -129,7 +129,6 @@ class Client(object):
         See https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
 
         Alternative, disabled right now: https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
-<<<<<<< HEAD
 
         :param cups: list of cups to fetch
         :param file_type: desired files to download, see available SIPS files

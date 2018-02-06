@@ -32,6 +32,17 @@ TARIFFS_OCSUM = {
     '016': "6.5",
 }
 
+def handle_persona_fj(tipoIdTitular):
+    """
+    Return 0 if NI, 1 if CI
+    """
+    return {
+        'NI': 0,
+        'CI': 1
+    }[tipoIdTitular]
+    
+
+
 class CNMC_Utils(object):
     def __init__(self, cnmc_config, mongo_config, collections_config):
 	self.client = cnmc_client.Client(**cnmc_config)
@@ -102,7 +113,7 @@ class CNMC_Utils(object):
             'perfil_consum': str(line['tipoPerfilConsumo']).capitalize(),
             'distri': line['nombreEmpresaDistribuidora'],
             'pot_max_bie': self._divide(line['potenciaMaximaBIEW'], 1000),
-            'persona_fj': line['tipoIdTitular'], #OJUT
+            'persona_fj': handle_persona_fj(line['tipoIdTitular']),
             'ine_provincia': line['codigoProvinciaPS'],
             'ine_municipio': line['municipioPS'],
             'indicatiu_icp': line['codigoDisponibilidadICP'],

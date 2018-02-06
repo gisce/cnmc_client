@@ -99,7 +99,7 @@ class CNMC_Utils(object):
             'pot_max_puesta': self._divide(line['potenciaMaximaAPMW'], 1000),
             'der_extensio': self._divide(line['valorDerechosExtensionW'], 1000),
             'fianza': line['importeDepositoGarantiaEuros'],
-            'perfil_consum': line['tipoPerfilConsumo'], #OJUT!
+            'perfil_consum': str(line['tipoPerfilConsumo']).capitalize(),
             'distri': line['nombreEmpresaDistribuidora'],
             'pot_max_bie': self._divide(line['potenciaMaximaBIEW'], 1000),
             'persona_fj': line['tipoIdTitular'], #OJUT

@@ -5,6 +5,7 @@ import cnmc_client
 from pymongo import MongoClient
 from sets import Set
 
+from datetime import datetime
 import click
 
 # Available SIPS file types and related destination collection
@@ -41,6 +42,13 @@ def handle_persona_fj(tipoIdTitular):
         'CI': 1
     }[tipoIdTitular]
     
+
+def handle_or_None(what):
+    return what if what else None
+
+
+def parse_datetime(the_date):
+    return datetime.strptime(the_date,'%Y-%m-%d') if the_date else None,
 
 
 class CNMC_Utils(object):

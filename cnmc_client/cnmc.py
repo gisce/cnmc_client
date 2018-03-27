@@ -35,6 +35,8 @@ class CNMC_API(object):
                 assert type(kwargs['environment']) == str, "environment argument must be an string"
                 assert kwargs['environment'] in CNCM_envs.keys(), "Provided environment '{}' not recognized in defined CNMC_envs {}".format(kwargs['environment'], str(FACE_ENVS.keys()))
                 self.environment = kwargs['environment']
+        else:
+            self.environment = environment
 
         self.url = CNCM_envs[self.environment]
 

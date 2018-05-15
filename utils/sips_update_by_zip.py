@@ -48,7 +48,7 @@ def handle_or_None(what):
 
 
 def parse_datetime(the_date):
-    return datetime.strptime(the_date,'%Y-%m-%d') if the_date else None,
+    return datetime.strptime(the_date,'%Y-%m-%d') if the_date else None
 
 
 class CNMC_Utils(object):
@@ -135,7 +135,7 @@ class CNMC_Utils(object):
             'name': line['cups'],
 	    'data_inicial':parse_datetime(line['fechaInicioMesConsumo']),
 	    'data_final': parse_datetime(line['fechaFinMesConsumo']),
-	    'tarifa': line['codigoTarifaATR'],
+	    'tarifa': TARIFFS_OCSUM[line['codigoTarifaATR']],
 	    'activa_1': self._divide(line['consumoEnergiaActivaEnWhP1'], 1000),
 	    'activa_2': self._divide(line['consumoEnergiaActivaEnWhP2'], 1000),
 	    'activa_3': self._divide(line['consumoEnergiaActivaEnWhP3'], 1000),

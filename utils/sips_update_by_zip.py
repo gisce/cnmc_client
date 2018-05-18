@@ -248,7 +248,7 @@ class CNMC_Utils(object):
 @click.argument('zipcode', type=click.STRING)
 @click.argument('file_type', type=click.Choice(LIST_OF_FILE_TYPES))
 @click.argument('destination_collection', type=click.STRING)
-def main(zipcode, host, port, user, password, database, file_type, cnmc, destination_collection, source):
+def main(zipcode, host, port, user, password, database, file_type, cnmc, destination_collection, source, wait):
     cnmc_config = {
 	'environment': cnmc,
     }
@@ -273,7 +273,7 @@ def main(zipcode, host, port, user, password, database, file_type, cnmc, destina
         print ("There are no matching cups for zipcode '{}'".format(zipcode))
         return False
 
-    SIPS_files = utils.fetch_SIPS(cups=cups_list, as_csv=True, file_type=file_type)
+    SIPS_files = utils.fetch_SIPS(cups=cups_list, as_csv=True, file_type=file_type, wait=wait)
     
     how_many = 0
     for a_file in SIPS_files:

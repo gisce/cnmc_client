@@ -83,8 +83,8 @@ class CNMC_Utils(object):
 
 	return list(cups)
 
-    def fetch_SIPS(self, cups, file_type=LIST_OF_FILE_TYPES[0], as_csv=False):
-	return self.client.fetch_massive(cups=cups, file_type=file_type, as_csv=as_csv)
+    def fetch_SIPS(self, cups, file_type=LIST_OF_FILE_TYPES[0], as_csv=False, wait=0):
+	return self.client.fetch_massive(cups=cups, file_type=file_type, as_csv=as_csv, wait=wait)
 
     def _divide(self, amount, division):
         if amount == "":
@@ -244,6 +244,7 @@ class CNMC_Utils(object):
 @click.option('--database', default='database', help='MongoDB database')
 @click.option('--cnmc', default='prod', help='CNMC environment')
 @click.option('--source', default='giscedata_sips_ps', help='Collection where to search CUPS by zipcode')
+@click.option('--wait', default=2.5, help='Wait between calls to API with fetch massive')
 @click.argument('zipcode', type=click.STRING)
 @click.argument('file_type', type=click.Choice(LIST_OF_FILE_TYPES))
 @click.argument('destination_collection', type=click.STRING)

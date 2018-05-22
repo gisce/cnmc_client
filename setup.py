@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
+import io
+import re
 from setuptools import setup, find_packages
-import cnmc_client
+
+with io.open('cnmc_client/__init__.py', 'rt', encoding='utf8') as f:
+    version = re.search(r'__version__ = \'(.*?)\'', f.read()).group(1)
 
 INSTALL_REQUIRES = ['Authlib', 'Munch', 'Marshmallow']
 
 setup(
     name='CNMC Client',
     description='Python client desired to interact with the CNMC API',
-    version=cnmc_client.__version__,
+    version=version,
     url='https://www.gisce.net',
     author='Xavi Torelló',
     author_email='xtorello@gisce.net',

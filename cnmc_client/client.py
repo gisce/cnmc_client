@@ -5,6 +5,7 @@ from .models import ListSchema, TestSchema, FilesSchema
 import os
 import io
 import csv
+import time
 
 AVAILABLE_FILE_STATES = ["DISPONIBLE", "DESCARGADO"]
 CUPS_CHUNK_SIZE = 10
@@ -93,7 +94,7 @@ class Client(object):
             raise ValueError('Result deserialization is not performed properly for "{}"'.format(repr(result)))
 
 
-    def fetch_massive(self, cups, file_type, as_csv=False):
+    def fetch_massive(self, cups, file_type, as_csv=False, wait=0):
         """
         Fetch massively a list of CUPS, internally will chunk it to ask N fetch requests
 
@@ -107,6 +108,8 @@ class Client(object):
         chunk_indexes = [x*CUPS_CHUNK_SIZE for x in range(0, number_of_cups/CUPS_CHUNK_SIZE + 1)]
 
         for chunk_block in chunk_indexes:
+            time.sleep(wait)
+
             cups_block = cups[chunk_block : chunk_block+CUPS_CHUNK_SIZE]
 
             result = self.fetch(cups_block, file_type, as_csv)

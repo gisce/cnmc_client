@@ -5,6 +5,7 @@ import cnmc_client
 from pymongo import MongoClient
 from sets import Set
 
+from datetime import datetime
 import click
 
 # Available SIPS file types and related destination collection
@@ -31,6 +32,24 @@ TARIFFS_OCSUM = {
     '015': "6.4",
     '016': "6.5",
 }
+
+def handle_persona_fj(tipoIdTitular):
+    """
+    Return 0 if NI, 1 if CI
+    """
+    return {
+        'NI': 0,
+        'CI': 1
+    }[tipoIdTitular]
+    
+
+def handle_or_None(what):
+    return what if what else None
+
+
+def parse_datetime(the_date):
+    return datetime.strptime(the_date,'%Y-%m-%d') if the_date else None
+
 
 class CNMC_Utils(object):
     def __init__(self, cnmc_config, mongo_config, collections_config):
@@ -64,8 +83,8 @@ class CNMC_Utils(object):
 
 	return list(cups)
 
-    def fetch_SIPS(self, cups, file_type=LIST_OF_FILE_TYPES[0], as_csv=False):
-	return self.client.fetch_massive(cups=cups, file_type=file_type, as_csv=as_csv)
+    def fetch_SIPS(self, cups, file_type=LIST_OF_FILE_TYPES[0], as_csv=False, wait=0):
+	return self.client.fetch_massive(cups=cups, file_type=file_type, as_csv=as_csv, wait=wait)
 
     def _divide(self, amount, division):
         if amount == "":
@@ -79,30 +98,30 @@ class CNMC_Utils(object):
         return {
             'name': line['cups'],
             'der_acces_llano': self._divide(line['valorDerechosAccesoW'], 1000),
-            'data_ult_lect': line['fechaUltimaLectura'],
+            'data_ult_lect': parse_datetime(line['fechaUltimaLectura']),
             'primera_vivienda': line['esViviendaHabitual'], #OJUT
-            'data_ult_canv': line['fechaUltimoCambioComercializador'],
+            'data_ult_canv': parse_datetime(line['fechaUltimoCambioComercializador']),
             'cnae': line['CNAE'],
             'tipo_pm': line['codigoClasificacionPS'],
             'codigoTipoSuministro': '',
             'codigoTarifaATREnVigor': TARIFFS_OCSUM[line['codigoTarifaATREnVigor']],
             'motivoEstadoNoContratable': line['motivoEstadoNoContratable'],
             'codi_postal': line['codigoPostalPS'],
-            'data_alta': line['fechaAltaSuministro'],
+            'data_alta': parse_datetime(line['fechaAltaSuministro']),
             'pot_cont_p1': self._divide(line['potenciasContratadasEnWP1'], 1000),
             'pot_cont_p2': self._divide(line['potenciasContratadasEnWP2'], 1000),
             'pot_cont_p3': self._divide(line['potenciasContratadasEnWP3'], 1000),
             'pot_cont_p4': self._divide(line['potenciasContratadasEnWP4'], 1000),
             'pot_cont_p5': self._divide(line['potenciasContratadasEnWP5'], 1000),
             'pot_cont_p6': self._divide(line['potenciasContratadasEnWP6'], 1000),
-            'data_ulti_mov': line['fechaUltimoMovimientoContrato'],
+            'data_ulti_mov': parse_datetime(line['fechaUltimoMovimientoContrato']),
             'pot_max_puesta': self._divide(line['potenciaMaximaAPMW'], 1000),
             'der_extensio': self._divide(line['valorDerechosExtensionW'], 1000),
             'fianza': line['importeDepositoGarantiaEuros'],
-            'perfil_consum': line['tipoPerfilConsumo'], #OJUT!
+            'perfil_consum': str(line['tipoPerfilConsumo']).capitalize(),
             'distri': line['nombreEmpresaDistribuidora'],
             'pot_max_bie': self._divide(line['potenciaMaximaBIEW'], 1000),
-            'persona_fj': line['tipoIdTitular'], #OJUT
+            'persona_fj': handle_persona_fj(line['tipoIdTitular']),
             'ine_provincia': line['codigoProvinciaPS'],
             'ine_municipio': line['municipioPS'],
             'indicatiu_icp': line['codigoDisponibilidadICP'],
@@ -114,9 +133,9 @@ class CNMC_Utils(object):
     def _adapt_type_consumos(self, line):
 	return {
             'name': line['cups'],
-	    'data_inicial': line['fechaInicioMesConsumo'],
-	    'data_final': line['fechaFinMesConsumo'],
-	    'tarifa': line['codigoTarifaATR'],
+	    'data_inicial':parse_datetime(line['fechaInicioMesConsumo']),
+	    'data_final': parse_datetime(line['fechaFinMesConsumo']),
+	    'tarifa': TARIFFS_OCSUM[line['codigoTarifaATR']],
 	    'activa_1': self._divide(line['consumoEnergiaActivaEnWhP1'], 1000),
 	    'activa_2': self._divide(line['consumoEnergiaActivaEnWhP2'], 1000),
 	    'activa_3': self._divide(line['consumoEnergiaActivaEnWhP3'], 1000),
@@ -225,10 +244,11 @@ class CNMC_Utils(object):
 @click.option('--database', default='database', help='MongoDB database')
 @click.option('--cnmc', default='prod', help='CNMC environment')
 @click.option('--source', default='giscedata_sips_ps', help='Collection where to search CUPS by zipcode')
+@click.option('--wait', default=2.5, help='Wait between calls to API with fetch massive')
 @click.argument('zipcode', type=click.STRING)
 @click.argument('file_type', type=click.Choice(LIST_OF_FILE_TYPES))
 @click.argument('destination_collection', type=click.STRING)
-def main(zipcode, host, port, user, password, database, file_type, cnmc, destination_collection, source):
+def main(zipcode, host, port, user, password, database, file_type, cnmc, destination_collection, source, wait):
     cnmc_config = {
 	'environment': cnmc,
     }
@@ -253,7 +273,7 @@ def main(zipcode, host, port, user, password, database, file_type, cnmc, destina
         print ("There are no matching cups for zipcode '{}'".format(zipcode))
         return False
 
-    SIPS_files = utils.fetch_SIPS(cups=cups_list, as_csv=True, file_type=file_type)
+    SIPS_files = utils.fetch_SIPS(cups=cups_list, as_csv=True, file_type=file_type, wait=wait)
     
     how_many = 0
     for a_file in SIPS_files:

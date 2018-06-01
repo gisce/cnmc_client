@@ -107,6 +107,9 @@ class Client(object):
         number_of_cups = len(cups)
         chunk_indexes = [x*CUPS_CHUNK_SIZE for x in range(0, number_of_cups/CUPS_CHUNK_SIZE + 1)]
 
+        if chunk_indexes[len(chunk_indexes) - 1:] == [len(cups)]:
+            chunk_indexes = chunk_indexes[:-1]
+
         for chunk_block in chunk_indexes:
             time.sleep(wait)
 

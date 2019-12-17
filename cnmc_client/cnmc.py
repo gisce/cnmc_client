@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from authlib.client import OAuth1Session
+import httplib
+import oauth.oauth as oauth
+import urllib
+import json
 import logging
 from io import BytesIO
 
@@ -8,6 +11,7 @@ CNCM_envs = {
     'prod': 'https://api.cnmc.gob.es',
     'staging': 'https://apipre.cnmc.gob.es',
 }
+NULL_TOKEN = None
 
 class CNMC_API(object):
 
@@ -38,8 +42,8 @@ class CNMC_API(object):
 
         self.url = CNCM_envs[self.environment]
 
-        self.session = OAuth1Session(self.key, self.secret, signature_method="HMAC-SHA1", signature_type="HEADER")
         self.NIF = self.get_NIF()
+
 
 
     def get_NIF(self):
@@ -49,6 +53,7 @@ class CNMC_API(object):
         It also support us to identify if session is established properly //as done by the oficial CNMC web client
         """
         response = self.get(resource="/test/v1/nif")
+        print response
         assert response['code'] == 200, "Connection is not established properly '{}'. Review oauth configuraion".format(str(response))
 
         assert 'result' in response and  'empresa' in response['result'] and response['result']['empresa'][0]
@@ -69,26 +74,45 @@ class CNMC_API(object):
         Fetch the requested URL with the requested action through the OAuth session and return a JSON representeation of the response with the resultant code
         """
         url = self.url + resource
-        response = self.session.request(method=method, url=url, **kwargs)
-
+        from urlparse import urlparse
+        parsed = urlparse(url)
+        print parsed.hostname
+        params = kwargs.get('params', None)
+        #response = self.session.request(method=method, url=url, **kwargs)
+        consumer = oauth.OAuthConsumer(self.key, self.secret)
+        signature_method_hmac_sha1 = oauth.OAuthSignatureMethod_HMAC_SHA1()
+        oauth_request = oauth.OAuthRequest.from_consumer_and_token(
+            consumer, token=NULL_TOKEN, http_method=method,http_url=url,
+            parameters=params
+        )
+        oauth_request.sign_request(signature_method_hmac_sha1, consumer, NULL_TOKEN)
+        connection = httplib.HTTPSConnection("%s:%d" % (parsed.hostname, parsed.port or 443))
+        if method == 'GET' and params:
+            resource +='?{}'.format(
+                urllib.urlencode(params)
+            )
+        connection.request(method, resource, headers=oauth_request.to_header())  
+        response = connection.getresponse()
+        print response.status, response.reason
+        status_code = response.status
         if download:
             return {
-                'code': response.status_code,
-                'result': BytesIO(response.content),
-                'error': True if response.status_code >= 400 else False,
+                'code': response.status,
+                'result': BytesIO(response.read()),
+                'error': True if status_code >= 400 else False,
             }
 
         # Handle errors
-        if response.status_code >= 400:
+        if status_code >= 400:
             return {
-                'code': response.status_code,
+                'code': status_code,
                 'error': True,
                 'message': str(response),
             }
         else:
             return {
-                'code': response.status_code,
-                'result': response.json(),
+                'code': status_code,
+                'result': json.loads(response.read()),
                 'error': False,
             }
 

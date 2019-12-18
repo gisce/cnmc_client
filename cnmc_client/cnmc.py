@@ -53,7 +53,6 @@ class CNMC_API(object):
         It also support us to identify if session is established properly //as done by the oficial CNMC web client
         """
         response = self.get(resource="/test/v1/nif")
-        print response
         assert response['code'] == 200, "Connection is not established properly '{}'. Review oauth configuraion".format(str(response))
 
         assert 'result' in response and  'empresa' in response['result'] and response['result']['empresa'][0]
@@ -76,7 +75,6 @@ class CNMC_API(object):
         url = self.url + resource
         from urlparse import urlparse
         parsed = urlparse(url)
-        print parsed.hostname
         params = kwargs.get('params', None)
         #response = self.session.request(method=method, url=url, **kwargs)
         consumer = oauth.OAuthConsumer(self.key, self.secret)
@@ -93,7 +91,6 @@ class CNMC_API(object):
             )
         connection.request(method, resource, headers=oauth_request.to_header())  
         response = connection.getresponse()
-        print response.status, response.reason
         status_code = response.status
         if download:
             return {

@@ -9,7 +9,7 @@ with io.open('cnmc_client/__init__.py', 'rt', encoding='utf8') as f:
 INSTALL_REQUIRES = ['oauth', 'Munch', 'Marshmallow']
 
 setup(
-    name='CNMC Client',
+    name='CNMCClient',
     description='Python client desired to interact with the CNMC API',
     version=version,
     url='https://www.gisce.net',

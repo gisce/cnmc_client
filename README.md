@@ -18,15 +18,17 @@ $ export CNMC_CONSUMER_SECRET=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxx
 , and instantiate the Client without any parameter:
 
 ```
-from cnmc import Client
+from cnmc_client import Client
 client = Client()
 ``` 
 
 ### Passed config
 
 Instantiate the Client passing the key and secret oauth tokens:
-```
-from cnmc import Client
+
+```python
+
+from cnmc_client import Client
 
 oauth_config = {
     'key': "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxxx",
@@ -47,8 +49,8 @@ client = Client(**oauth_config)
 ### Test method
 Method desired to test the connection with the API using the `echoseguro` resource.
 
-```
-self.client.test(message="This is a test message!")
+```python
+client.test(message="This is a test message!")
 ```
 
 
@@ -59,12 +61,12 @@ List downloaded files or files able to be downloaded, with the capacity of filte
 - end_date
 - status in ["DISPONIBLE", "DESCARGADO"]
 
-```
+```python
 STATUS = "DISPONIBLE"
 date_start = 
 date_end = 
 
-self.client.list(status=STATUS, date_start=date_start, date_end=date_end)
+client.list(status=STATUS, date_start=date_start, date_end=date_end)
 ```
 
 ### Fetch method
@@ -77,15 +79,15 @@ List of types:
 - SIPS2_PS_GAS
 - SIPS2_CONSUMOS_GAS
 
-```
+```python
 the_cups = [ "CUPSA", "CUPSB" ]
 the_type = "SIPS2_PS_ELECTRICIDAD"
 
-self.client.fetch(cups=the_cups, file_type=the_type)
+client.fetch(cups=the_cups, file_type=the_type)
 ```
 
 
 ### Download method
 
-```
+```python
 ```

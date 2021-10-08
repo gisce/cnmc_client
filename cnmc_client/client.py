@@ -10,8 +10,9 @@ import time
 AVAILABLE_FILE_STATES = ["DISPONIBLE", "DESCARGADO"]
 CUPS_CHUNK_SIZE = 10
 
+
 class Client(object):
-    def __init__(self, key=None, secret=None, environment=None):
+    def __init__(self, key=None, secret=None, environment=None, timeout=None):
 
         # Handle the key
         self.key = key
@@ -29,9 +30,8 @@ class Client(object):
         self.environment = "prod"
         if environment:
             self.environment = environment
-
+        self.timeout = timeout
         self.API = CNMC_API(key=self.key, secret=self.secret, environment=self.environment)
-
 
     def test(self, message):
         """
@@ -40,7 +40,10 @@ class Client(object):
         params = {
             "m": message,
         }
-        response = self.API.get(resource="/test/v1/echoseguro", params=params)
+        response = self.API.get(
+            resource="/test/v1/echoseguro", params=params,
+            timeout=self.timeout
+        )
 
         # Validate and deserialize the response
         schema = TestSchema()
@@ -50,7 +53,6 @@ class Client(object):
             return result.data
         else:
             raise ValueError('Result deserialization is not performed properly for "{}"'.format(repr(result)))
-
 
     def list(self, status=None, date_start=None, date_end=None):
         """
@@ -82,7 +84,10 @@ class Client(object):
             params['fechaHasta'] = date_start
 
         # Ask the API
-        response = self.API.post(resource="/ficheros/v1/consultar", params=params)
+        response = self.API.post(
+            resource="/ficheros/v1/consultar", params=params,
+            timeout=self.timeout
+        )
 
         # Validate and deserialize the response
         schema = ListSchema()
@@ -93,7 +98,6 @@ class Client(object):
         else:
             raise ValueError('Result deserialization is not performed properly for "{}"'.format(repr(result)))
 
-
     def fetch_massive(self, cups, file_type, as_csv=False, wait=0):
         """
         Fetch massively a list of CUPS, internally will chunk it to ask N fetch requests
@@ -101,6 +105,7 @@ class Client(object):
         :param cups: list of cups to fetch
         :param file_type: desired files to download, see available SIPS files
         :param as_csv: bool flag to return a CSV or a BytesIO instance
+        :param wait: number of seconds to wait before the next reaquest chunk
         :return: List of CNMC_File models //{'code': 200, 'result': <csv.DictReader instance at 0x7f194e0f23f8>, 'error': False}
         """
         results = []
@@ -109,15 +114,11 @@ class Client(object):
 
         for chunk_block in chunk_indexes:
             time.sleep(wait)
-
-            cups_block = cups[chunk_block : chunk_block+CUPS_CHUNK_SIZE]
-
+            cups_block = cups[chunk_block:chunk_block+CUPS_CHUNK_SIZE]
             result = self.fetch(cups_block, file_type, as_csv)
-
             results.append(result)
 
         return results
-
 
     def fetch(self, cups, file_type, as_csv=False):
         """
@@ -148,7 +149,11 @@ class Client(object):
         }
 
         # Ask the API
-        response = self.API.download(resource="/verticales/v1/SIPS/consulta/v1/{}.csv".format(file_type), params=params)
+        response = self.API.download(
+            resource="/verticales/v1/SIPS/consulta/v1/{}.csv".format(file_type),
+            params=params,
+            timeout=self.timeout
+        )
 
         # Return a csv reader if needed
         if as_csv:
@@ -165,10 +170,6 @@ class Client(object):
         else:
             raise ValueError('Fetch result deserialization is not performed properly for "{}"'.format(repr(result)))
 
-
-        return response
-
-
     def download(self, filename):
         """
         Download
@@ -181,5 +182,8 @@ class Client(object):
         assert type(filename) == str
 
         # Ask the API
-        response = self.API.get(resource="/ficheros/v1/descarga/{}".format(filename))
+        response = self.API.get(
+            resource="/ficheros/v1/descarga/{}".format(filename),
+            timeout=self.timeout
+        )
         return response

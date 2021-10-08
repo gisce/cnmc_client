@@ -104,18 +104,15 @@ class Client(object):
         :return: List of CNMC_File models //{'code': 200, 'result': <csv.DictReader instance at 0x7f194e0f23f8>, 'error': False}
         """
         results = []
-        number_of_cups = len(cups)
-        chunk_indexes = [x*CUPS_CHUNK_SIZE for x in range(0, number_of_cups/CUPS_CHUNK_SIZE + 1)]
-
-        for chunk_block in chunk_indexes:
-            time.sleep(wait)
-
-            cups_block = cups[chunk_block : chunk_block+CUPS_CHUNK_SIZE]
-
+        start = 0
+        cups_block = cups[start:start + CUPS_CHUNK_SIZE]
+        while cups_block:
+            if start > 0:
+                time.sleep(wait)
             result = self.fetch(cups_block, file_type, as_csv)
-
             results.append(result)
-
+            start += CUPS_CHUNK_SIZE
+            cups_block = cups[start:start + CUPS_CHUNK_SIZE]
         return results
 
 

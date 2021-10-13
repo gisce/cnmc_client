@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import socket
 import httplib
 import oauth.oauth as oauth
 import urllib
@@ -12,6 +13,7 @@ CNCM_envs = {
     'staging': 'https://apipre.cnmc.gob.es',
 }
 NULL_TOKEN = None
+
 
 class CNMC_API(object):
 
@@ -42,10 +44,6 @@ class CNMC_API(object):
 
         self.url = CNCM_envs[self.environment]
 
-        self.NIF = self.get_NIF()
-
-
-
     def get_NIF(self):
         """
         Get NIF from test API method
@@ -55,16 +53,8 @@ class CNMC_API(object):
         response = self.get(resource="/test/v1/nif")
         assert response['code'] == 200, "Connection is not established properly '{}'. Review oauth configuraion".format(str(response))
 
-        assert 'result' in response and  'empresa' in response['result'] and response['result']['empresa'][0]
+        assert 'result' in response and 'empresa' in response['result'] and response['result']['empresa'][0]
         return response['result']['empresa'][0]
-
-
-    def set_request_token (self):
-        """
-        Set the request token for current session
-        """
-        self.request_token = self.session.fetch_request_token(self.url)
-
 
     def method(self, method, resource, download=False, **kwargs):
         """
@@ -76,7 +66,7 @@ class CNMC_API(object):
         from urlparse import urlparse
         parsed = urlparse(url)
         params = kwargs.get('params', None)
-        #response = self.session.request(method=method, url=url, **kwargs)
+        timeout = kwargs.get('timeout', socket._GLOBAL_DEFAULT_TIMEOUT)
         consumer = oauth.OAuthConsumer(self.key, self.secret)
         signature_method_hmac_sha1 = oauth.OAuthSignatureMethod_HMAC_SHA1()
         oauth_request = oauth.OAuthRequest.from_consumer_and_token(
@@ -84,7 +74,10 @@ class CNMC_API(object):
             parameters=params
         )
         oauth_request.sign_request(signature_method_hmac_sha1, consumer, NULL_TOKEN)
-        connection = httplib.HTTPSConnection("%s:%d" % (parsed.hostname, parsed.port or 443))
+        connection = httplib.HTTPSConnection(
+            "%s:%d" % (parsed.hostname, parsed.port or 443),
+            timeout=timeout
+        )
         if method == 'GET' and params:
             resource +='?{}'.format(
                 urllib.urlencode(params)
@@ -113,20 +106,17 @@ class CNMC_API(object):
                 'error': False,
             }
 
-
     def get(self, resource, **kwargs):
         """
         GET method, it dispatch a session.get method consuming the desired resource
         """
         return self.method(method="GET", resource=resource, **kwargs)
 
-
     def post(self, resource, **kwargs):
         """
         POST method, it dispatch a session.get method consuming the desired resource
         """
         return self.method(method="POST", resource=resource, **kwargs)
-
 
     def download(self, resource, **kwargs):
         """

@@ -2,7 +2,7 @@
 
 from .cnmc import CNMC_API
 from .models import ListSchema, TestSchema, FilesSchema
-import os
+from .base import BaseApiClient
 import io
 import csv
 import time
@@ -11,27 +11,9 @@ AVAILABLE_FILE_STATES = ["DISPONIBLE", "DESCARGADO"]
 CUPS_CHUNK_SIZE = 10
 
 
-class Client(object):
-    def __init__(self, key=None, secret=None, environment=None, timeout=None):
-
-        # Handle the key
-        self.key = key
-        if not key:
-            self.key = os.getenv('CNMC_CONSUMER_KEY')
-        assert self.key, "The key is needed to initialize the CNCM connection"
-
-        # Handle the secret
-        self.secret = secret
-        if not secret:
-            self.secret = os.getenv('CNMC_CONSUMER_SECRET')
-        assert self.secret, "The secret is needed to initialize the CNCM connection"
-
-        # Handle the env, by default prod
-        self.environment = "prod"
-        if environment:
-            self.environment = environment
-        self.timeout = timeout
-        self.API = CNMC_API(key=self.key, secret=self.secret, environment=self.environment)
+class Client(BaseApiClient):
+    def __init__(self, key=None, secret=None, environment=None, timeout=None, api_class=CNMC_API):
+        super(Client, self).__init__(key, secret, environment, timeout, api_class)
 
     def test(self, message):
         """

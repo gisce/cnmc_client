@@ -49,7 +49,7 @@ class BaseApi(object):
         timeout = kwargs.pop('timeout', DEFAULTS.TIMEOUT)
 
         headers = kwargs.pop("headers", {}) or {}
-        headers.setdefault("Accept", "application/json")
+        # headers.setdefault("Accept", "application/json")
         headers.setdefault("User-Agent", "cnmc-client/1.0")
 
         response = self.auth_session.request(

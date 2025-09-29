@@ -1,0 +1,37 @@
+name: CNMC_CLIENT_TESTS
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test-python3:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    - name: Install dependencies
+      run: |
+        pip install -r requirements-dev.txt
+        pip install -e .
+    - name: Run tests
+      run: |
+        python -m unittest discover -v
+
+  test-python27:
+    runs-on: ubuntu-latest
+    container: python:2.7-slim
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        pip install -r requirements-dev.txt
+        pip install -e .
+    - name: Run tests
+      run: |
+        python -m unittest discover -v

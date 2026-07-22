@@ -2,3 +2,5 @@ Authlib==0.14.3
 oauth
 Marshmallow==2.21.0
 Munch
+requests
+requests_oauthlib

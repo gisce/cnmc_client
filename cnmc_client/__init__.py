@@ -6,3 +6,4 @@ __version__ = '0.4.3'
 
 from .client import Client
 from .cnmc import CNMC_API
+from .base import BaseApi, BaseApiClient

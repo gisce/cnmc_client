@@ -1,3 +1,13 @@
+# 0.5.0
+- Authentication migrated from OAuth 1.0 to OAuth 2.0 (`client_credentials`)
+  - Token requested to `/oauth2/token` and reused while valid (renewed 30s before expiration)
+  - On a 401 response a new token is requested and the request is retried once
+- Resources moved to the new `/api-oauth2/...` paths
+  - `Client.test()` uses `/api-oauth2/test/perfil` (no echo message anymore)
+  - `Client.download()` does not send the token and accepts the `uriDescargas` returned by `list()`
+- `environment` argument is now honored by `CNMC_API`
+- Removed `oauth` and `Authlib` dependencies
+
 # 0.3.0
 - Created `utils/sips_update_by_zip.py` script
   - Desired to update SIPS information for all CUPS that belongs to a zipcode

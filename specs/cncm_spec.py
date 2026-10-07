@@ -23,7 +23,7 @@ config = {
 
 scope = {
     "download": {
-        "url": "/verticales/v1/SIPS/consulta/v1/SIPS2_PS_ELECTRICIDAD.csv?cups=ES0021000000228141PR"
+        "url": "/api-oauth2/verticales/v1/SIPS/consulta/v1/SIPS2_PS_ELECTRICIDAD.csv?cups=ES0021000000228141PR"
     }
 }
 

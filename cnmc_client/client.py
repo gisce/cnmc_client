@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .cnmc import CNMC_API
-from .models import ListSchema, TestSchema, FilesSchema
+from .models import ListSchema, ResponseSchema, FilesSchema
 import os
 import io
 import csv
@@ -33,20 +33,19 @@ class Client(object):
         self.timeout = timeout
         self.API = CNMC_API(key=self.key, secret=self.secret, environment=self.environment)
 
-    def test(self, message):
+    def test(self, message=None):
         """
-        Test do not follow the default method
+        Test the authentication against the profile resource
+
+        With OAuth 2.0 there is no echo resource, the message is ignored and kept for compatibility
         """
-        params = {
-            "m": message,
-        }
         response = self.API.get(
-            resource="/test/v1/echoseguro", params=params,
+            resource="/api-oauth2/test/perfil",
             timeout=self.timeout
         )
 
         # Validate and deserialize the response
-        schema = TestSchema()
+        schema = ResponseSchema()
         result = schema.load(response)
 
         if not result.errors:
@@ -85,7 +84,7 @@ class Client(object):
 
         # Ask the API
         response = self.API.post(
-            resource="/ficheros/v1/consultar", params=params,
+            resource="/api-oauth2/ficheros/consultar", params=params,
             timeout=self.timeout
         )
 
@@ -154,7 +153,7 @@ class Client(object):
 
         # Ask the API
         response = self.API.download(
-            resource="/verticales/v1/SIPS/consulta/v1/{}.csv".format(file_type),
+            resource="/api-oauth2/verticales/v1/SIPS/consulta/v1/{}.csv".format(file_type),
             params=params,
             timeout=self.timeout
         )
@@ -176,18 +175,22 @@ class Client(object):
 
     def download(self, filename):
         """
-        Download
+        Download a file by its id or by the uriDescargas returned by list()
+
+        The download resource does not need the OAuth 2.0 token
 
         See https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
-
-        Alternative, disabled right now: https://documentacion.cnmc.es/doc/display/ICSV/API+de+consulta+individualizada
         """
 
         assert type(filename) == str
 
+        resource = filename
+        if not filename.startswith(('http', '/')):
+            resource = "/ficheros/v1/descarga/{}".format(filename)
+
         # Ask the API
         response = self.API.get(
-            resource="/ficheros/v1/descarga/{}".format(filename),
+            resource=resource, auth=False,
             timeout=self.timeout
         )
         return response

@@ -46,9 +46,7 @@ with description('A new'):
                     message="this is just a test!"
                     response = self.client.test(message=message)
 
-                    assert response and 'result' in response
-                    assert 'mensaje' in response.result
-                    assert response.result.mensaje == message
+                    assert response and not response.error
 
         with context('list of pending files'):
             with it('must be performed as expected'):

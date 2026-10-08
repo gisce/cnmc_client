@@ -6,6 +6,10 @@ It provides a Python client desired to interact with the CNMC API.
 
 Simply configure the KEY and the SECRET as exported environment vars, or attach it at Client initialization time
 
+KEY and SECRET are the CNMC OAuth 2.0 consumer key and consumer secret. The client asks the access token (`client_credentials` grant) and renews it automatically when it expires.
+
+Use `environment='staging'` to work against the CNMC pre-production API (`apipre.cnmc.gob.es`), by default `prod` is used.
+
 ### ENV vars
 
 Just define the needed ENV vars:

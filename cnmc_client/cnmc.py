@@ -2,17 +2,25 @@
 
 import socket
 import httplib
-import oauth.oauth as oauth
 import urllib
+import base64
 import json
+import time
 import logging
 from io import BytesIO
+from urlparse import urlparse
 
 CNCM_envs = {
     'prod': 'https://api.cnmc.gob.es',
     'staging': 'https://apipre.cnmc.gob.es',
 }
-NULL_TOKEN = None
+
+TOKEN_PATH = '/oauth2/token'
+TOKEN_SCOPE = 'read'
+# Seconds before the real expiration when the token is considered expired
+TOKEN_EXPIRY_MARGIN = 30
+
+PROFILE_RESOURCE = '/api-oauth2/test/perfil'
 
 
 class CNMC_API(object):
@@ -35,14 +43,23 @@ class CNMC_API(object):
         self.secret = secret
 
         # Handle environment, default value "prod"
-        self.environment = "prod"
-        if not environment:
-            if 'environment' in kwargs:
-                assert type(kwargs['environment']) == str, "environment argument must be an string"
-                assert kwargs['environment'] in CNCM_envs.keys(), "Provided environment '{}' not recognized in defined CNMC_envs {}".format(kwargs['environment'], str(FACE_ENVS.keys()))
-                self.environment = kwargs['environment']
+        environment = environment or kwargs.get('environment') or 'prod'
+        assert type(environment) == str, "environment argument must be an string"
+        assert environment in CNCM_envs.keys(), "Provided environment '{}' not recognized in defined CNMC_envs {}".format(environment, str(CNCM_envs.keys()))
+        self.environment = environment
 
         self.url = CNCM_envs[self.environment]
+
+        # OAuth 2.0 token cache
+        self._access_token = None
+        self._token_expires_at = 0
+        self._nif = None
+
+    @property
+    def NIF(self):
+        if not self._nif:
+            self._nif = self.get_NIF()
+        return self._nif
 
     def get_NIF(self):
         """
@@ -50,40 +67,121 @@ class CNMC_API(object):
 
         It also support us to identify if session is established properly //as done by the oficial CNMC web client
         """
-        response = self.get(resource="/test/v1/nif")
+        response = self.get(resource=PROFILE_RESOURCE)
         assert response['code'] == 200, "Connection is not established properly '{}'. Review oauth configuraion".format(str(response))
 
-        assert 'result' in response and 'empresa' in response['result'] and response['result']['empresa'][0]
-        return response['result']['empresa'][0]
+        profile = response.get('result') or {}
+        # Legacy /test/v1/nif format: {"empresa": ["NIF"]}
+        if profile.get('empresa'):
+            empresa = profile['empresa']
+            return empresa[0] if isinstance(empresa, list) else empresa
+        for key in ('nif', 'nifEmpresa', 'NIF'):
+            if profile.get(key):
+                return profile[key]
+        raise ValueError("NIF not found in profile response '{}'".format(str(profile)))
 
-    def method(self, method, resource, download=False, **kwargs):
-        """
-        Main method handler
-
-        Fetch the requested URL with the requested action through the OAuth session and return a JSON representeation of the response with the resultant code
-        """
-        url = self.url + resource
-        from urlparse import urlparse
+    def _connection(self, url, timeout):
         parsed = urlparse(url)
-        params = kwargs.get('params', None)
-        timeout = kwargs.get('timeout', socket._GLOBAL_DEFAULT_TIMEOUT)
-        consumer = oauth.OAuthConsumer(self.key, self.secret)
-        signature_method_hmac_sha1 = oauth.OAuthSignatureMethod_HMAC_SHA1()
-        oauth_request = oauth.OAuthRequest.from_consumer_and_token(
-            consumer, token=NULL_TOKEN, http_method=method,http_url=url,
-            parameters=params
-        )
-        oauth_request.sign_request(signature_method_hmac_sha1, consumer, NULL_TOKEN)
-        connection = httplib.HTTPSConnection(
+        return httplib.HTTPSConnection(
             "%s:%d" % (parsed.hostname, parsed.port or 443),
             timeout=timeout
         )
-        if method == 'GET' and params:
-            resource +='?{}'.format(
-                urllib.urlencode(params)
-            )
-        connection.request(method, resource, headers=oauth_request.to_header())  
+
+    def fetch_token(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT):
+        """
+        Ask a new OAuth 2.0 access token using the client_credentials grant
+
+        There is no refresh token, a new token is requested the same way when the previous one expires
+        """
+        credentials = base64.b64encode('{}:{}'.format(self.key, self.secret))
+        headers = {
+            'Authorization': 'Basic {}'.format(credentials),
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+        }
+        body = urllib.urlencode({
+            'grant_type': 'client_credentials',
+            'scope': TOKEN_SCOPE,
+        })
+        connection = self._connection(self.url, timeout)
+        connection.request('POST', TOKEN_PATH, body=body, headers=headers)
         response = connection.getresponse()
+        content = response.read()
+        if response.status != 200:
+            raise ValueError("OAuth2 token request failed with code '{}': {}".format(response.status, content))
+
+        data = json.loads(content)
+        self._access_token = data['access_token']
+        self._token_expires_at = time.time() + int(data.get('expires_in', 0))
+        return self._access_token
+
+    def get_token(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT):
+        """
+        Return the current access token, asking a new one if missing or about to expire
+        """
+        if not self._access_token or time.time() >= self._token_expires_at - TOKEN_EXPIRY_MARGIN:
+            self.fetch_token(timeout=timeout)
+        return self._access_token
+
+    def invalidate_token(self):
+        self._access_token = None
+        self._token_expires_at = 0
+
+    def _origin(self, url):
+        parsed = urlparse(url)
+        return parsed.scheme, parsed.hostname, parsed.port or 443
+
+    def _do_request(self, method, url, path, body, headers, timeout):
+        connection = self._connection(url, timeout)
+        connection.request(method, path, body=body, headers=headers)
+        return connection.getresponse()
+
+    def method(self, method, resource, download=False, auth=True, **kwargs):
+        """
+        Main method handler
+
+        Fetch the requested URL with the requested action using an OAuth 2.0 Bearer token and return a JSON representeation of the response with the resultant code
+
+        Resource can be a path relative to the environment URL or an absolute URL. With auth=False no token is sent.
+        Authenticated requests are restricted to the configured environment origin
+        """
+        if resource.startswith('http'):
+            url = resource
+        else:
+            url = self.url + resource
+        # Never send the token outside the configured CNMC environment
+        if auth and self._origin(url) != self._origin(self.url):
+            raise ValueError("Authenticated requests are only allowed against '{}'".format(self.url))
+
+        parsed = urlparse(url)
+        path = parsed.path
+        if parsed.query:
+            path += '?{}'.format(parsed.query)
+
+        params = kwargs.get('params', None)
+        timeout = kwargs.get('timeout', socket._GLOBAL_DEFAULT_TIMEOUT)
+
+        body = None
+        headers = {}
+        if params:
+            encoded = urllib.urlencode(params)
+            if method == 'GET':
+                path += '{}{}'.format('&' if '?' in path else '?', encoded)
+            else:
+                body = encoded
+                headers['Content-Type'] = 'application/x-www-form-urlencoded'
+
+        if auth:
+            headers['Authorization'] = 'Bearer {}'.format(self.get_token(timeout=timeout))
+        response = self._do_request(method, url, path, body, headers, timeout)
+
+        # Expired or invalid token: ask a new one and retry once
+        if auth and response.status == 401:
+            response.read()
+            self.invalidate_token()
+            headers['Authorization'] = 'Bearer {}'.format(self.get_token(timeout=timeout))
+            response = self._do_request(method, url, path, body, headers, timeout)
+
         status_code = response.status
         if download:
             return {
@@ -97,7 +195,7 @@ class CNMC_API(object):
             return {
                 'code': status_code,
                 'error': True,
-                'message': str(response),
+                'message': response.read(),
             }
         else:
             return {

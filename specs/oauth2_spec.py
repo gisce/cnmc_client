@@ -146,6 +146,40 @@ with description('CNMC API with OAuth 2.0'):
             expect(response['error']).to(be_true)
             expect(server.requests).to(have_len(4))
 
+    with context('token scope'):
+        with it('never sends the bearer token to a different host'):
+            for resource in [
+                'https://another-host.com/api-oauth2/test/perfil',
+                'http://api.cnmc.gob.es/api-oauth2/test/perfil',
+                'https://api.cnmc.gob.es:8443/api-oauth2/test/perfil',
+                'https://apipre.cnmc.gob.es/api-oauth2/test/perfil',
+                '@another-host.com/api-oauth2/test/perfil',
+            ]:
+                server = FakeServer([token_response(), http_response(200, '{}')])
+                with patch('cnmc_client.cnmc.httplib.HTTPSConnection', server):
+                    api = CNMC_API(**config)
+                    expect(lambda: api.get(resource=resource)).to(raise_error(ValueError))
+                expect(server.requests).to(have_len(0))
+
+        with it('allows absolute URLs of the configured environment'):
+            server = FakeServer([token_response(), http_response(200, '{}')])
+            with patch('cnmc_client.cnmc.httplib.HTTPSConnection', server):
+                api = CNMC_API(environment='staging', **config)
+                api.get(resource='https://apipre.cnmc.gob.es/api-oauth2/test/perfil')
+
+            expect(server.requests[1]['host']).to(equal('apipre.cnmc.gob.es:443'))
+            expect(server.requests[1]['headers']['Authorization']).to(equal('Bearer the_token'))
+
+        with it('allows unauthenticated requests to other hosts without token'):
+            server = FakeServer([http_response(200, '{}')])
+            with patch('cnmc_client.cnmc.httplib.HTTPSConnection', server):
+                api = CNMC_API(**config)
+                api.get(resource='https://another-host.com/file', auth=False)
+
+            expect(server.token_requests()).to(have_len(0))
+            expect(server.requests[0]['host']).to(equal('another-host.com:443'))
+            expect(server.requests[0]['headers']).not_to(have_key('Authorization'))
+
     with context('client resources'):
         with it('fetch uses the api-oauth2 verticales path'):
             server = FakeServer([token_response(), http_response(200, 'a,b\n1,2\n')])

@@ -127,6 +127,10 @@ class CNMC_API(object):
         self._access_token = None
         self._token_expires_at = 0
 
+    def _origin(self, url):
+        parsed = urlparse(url)
+        return parsed.scheme, parsed.hostname, parsed.port or 443
+
     def _do_request(self, method, url, path, body, headers, timeout):
         connection = self._connection(url, timeout)
         connection.request(method, path, body=body, headers=headers)
@@ -138,12 +142,17 @@ class CNMC_API(object):
 
         Fetch the requested URL with the requested action using an OAuth 2.0 Bearer token and return a JSON representeation of the response with the resultant code
 
-        Resource can be a path relative to the environment URL or an absolute URL. With auth=False no token is sent
+        Resource can be a path relative to the environment URL or an absolute URL. With auth=False no token is sent.
+        Authenticated requests are restricted to the configured environment origin
         """
         if resource.startswith('http'):
             url = resource
         else:
             url = self.url + resource
+        # Never send the token outside the configured CNMC environment
+        if auth and self._origin(url) != self._origin(self.url):
+            raise ValueError("Authenticated requests are only allowed against '{}'".format(self.url))
+
         parsed = urlparse(url)
         path = parsed.path
         if parsed.query:
